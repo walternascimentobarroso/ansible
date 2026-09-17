@@ -1,10 +1,12 @@
 services:
-  ansible:
-    build: .
-    container_name: homelab-ansible
-    working_dir: /ansible
-    volumes:
-      - .:/ansible
-      - ~/.ssh:/root/.ssh:ro
-    stdin_open: true
-    tty: true
+    ansible:
+        build: .
+        container_name: homelab-ansible
+        working_dir: /ansible
+
+        volumes:
+            - .:/ansible
+            - ~/.ssh:/root/.ssh:ro
+
+        stdin_open: true
+        tty: true

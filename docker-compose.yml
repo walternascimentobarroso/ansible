@@ -4,6 +4,9 @@ services:
         container_name: homelab-ansible
         working_dir: /ansible
 
+        env_file:
+            - .env
+
         volumes:
             - .:/ansible
             - ~/.ssh:/root/.ssh:ro

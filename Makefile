@@ -57,12 +57,12 @@ bash: ## Open a shell inside the ansible container
 
 .PHONY: ping
 ping: ## Ping all hosts in the inventory
-	$(DOCKER_COMPOSE) exec $(SERVICE) ansible all -i inventory -m ping
+	$(DOCKER_COMPOSE) exec $(SERVICE) ansible all -m ping
 
 .PHONY: playbook
 playbook: ## Run a playbook, e.g. make playbook PLAYBOOK=site.yml
-	$(DOCKER_COMPOSE) exec $(SERVICE) ansible-playbook -i inventory $(PLAYBOOK)
+	$(DOCKER_COMPOSE) exec $(SERVICE) ansible-playbook $(PLAYBOOK)
 
 .PHONY: syntax-check
 syntax-check: ## Check syntax of a playbook, e.g. make syntax-check PLAYBOOK=site.yml
-	$(DOCKER_COMPOSE) exec $(SERVICE) ansible-playbook -i inventory $(PLAYBOOK) --syntax-check
+	$(DOCKER_COMPOSE) exec $(SERVICE) ansible-playbook $(PLAYBOOK) --syntax-check

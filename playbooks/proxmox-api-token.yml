@@ -1,0 +1,40 @@
+---
+- name: Rotate Proxmox API token
+  hosts: proxmox
+  gather_facts: false
+
+  vars:
+    proxmox_api_user: "{{ lookup('env', 'PROXMOX_USER') }}"
+    proxmox_api_token_id: "{{ lookup('env', 'PROXMOX_TOKEN_ID') }}"
+
+  tasks:
+    - name: Check existing API tokens
+      ansible.builtin.command:
+        cmd: "pveum user token list {{ proxmox_api_user }}"
+      register: proxmox_tokens
+      changed_when: false
+
+    - name: Remove existing API token
+      ansible.builtin.command:
+        cmd: "pveum user token remove {{ proxmox_api_user }} {{ proxmox_api_token_id }}"
+      when: proxmox_api_token_id in proxmox_tokens.stdout
+
+    - name: Create new API token
+      ansible.builtin.command:
+        cmd: "pveum user token add {{ proxmox_api_user }} {{ proxmox_api_token_id }}"
+      register: token_creation
+
+    - name: Show newly created token
+      ansible.builtin.debug:
+        var: token_creation.stdout
+
+    - name: Extract token secret from creation output
+      ansible.builtin.set_fact:
+        proxmox_token_secret: "{{ token_creation.stdout | regex_search('value\\s*│\\s*([0-9a-f-]{36})', '\\1') | first }}"
+
+    - name: Update PROXMOX_TOKEN_SECRET in .env
+      ansible.builtin.lineinfile:
+        path: "{{ playbook_dir }}/../.env"
+        regexp: '^PROXMOX_TOKEN_SECRET='
+        line: "PROXMOX_TOKEN_SECRET={{ proxmox_token_secret }}"
+      delegate_to: localhost

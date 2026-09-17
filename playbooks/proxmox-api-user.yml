@@ -5,7 +5,6 @@
 
   vars:
       proxmox_api_user: "{{ lookup('env', 'PROXMOX_USER') }}"
-      proxmox_api_token_name: "{{ lookup('env', 'PROXMOX_TOKEN_ID') }}"
 
   tasks:
       - name: Check if Ansible user exists
@@ -16,22 +15,5 @@
 
       - name: Create Ansible user
         ansible.builtin.command:
-            cmd: pveum user add {{ proxmox_api_user }}
+            cmd: "pveum user add {{ proxmox_api_user }}"
         when: proxmox_api_user not in proxmox_users.stdout
-
-      - name: Check existing API tokens
-        ansible.builtin.command:
-            cmd: pveum user token list {{ proxmox_api_user }}
-        register: proxmox_tokens
-        changed_when: false
-
-      - name: Create Ansible API token
-        ansible.builtin.command:
-            cmd: pveum user token add {{ proxmox_api_user }} {{ proxmox_api_token_name }}
-        register: token_creation
-        when: proxmox_api_token_name not in proxmox_tokens.stdout
-
-      - name: Show newly created token
-        ansible.builtin.debug:
-            var: token_creation.stdout
-        when: token_creation.changed

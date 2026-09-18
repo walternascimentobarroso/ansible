@@ -12,3 +12,18 @@
       php occ config:system:set trusted_domains 1
       --value={{ ansible_host }}
   when: ansible_host not in nextcloud_trusted_domains_current.stdout_lines
+
+- name: Read Nextcloud skeleton directory
+  ansible.builtin.command:
+    cmd: docker exec -u www-data nextcloud php occ config:system:get skeletondirectory
+  register: nextcloud_skeleton_directory
+  changed_when: false
+  failed_when: false
+
+- name: Configure Nextcloud skeleton directory
+  ansible.builtin.command:
+    cmd: >
+      docker exec -u www-data nextcloud
+      php occ config:system:set skeletondirectory
+      --value=/skeleton
+  when: nextcloud_skeleton_directory.stdout != "/skeleton"

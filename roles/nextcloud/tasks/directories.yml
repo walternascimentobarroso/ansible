@@ -28,3 +28,22 @@
     owner: www-data
     group: www-data
     mode: "0750"
+
+- name: Create Nextcloud skeleton directory
+  ansible.builtin.file:
+    path: /opt/nextcloud/skeleton
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Create default Nextcloud user directories
+  ansible.builtin.file:
+    path: "/opt/nextcloud/skeleton/{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  loop:
+    - Documents
+    - Photos

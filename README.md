@@ -120,9 +120,15 @@ This aggregates, in order:
 
 1. `create-lxc.yml` — creates the LXC on Proxmox via the API (specs from `.env`, resolved through `inventory/group_vars/nextcloud.yml`).
 2. `bootstrap-lxc.yml` — installs `openssh-server` inside the LXC and authorizes the automation's key.
-3. `configure-app.yml` — installs Docker on the LXC and brings up the Nextcloud stack (Postgres, Redis, Nextcloud), waiting for the installation to finish.
+3. `configure-app.yml` — installs Docker on the LXC and brings up the Nextcloud stack (Postgres, Redis, Caddy, Nextcloud), waiting for the installation to finish.
 
-At the end, Nextcloud is reachable at `http://<NEXTCLOUD_IP>` with the credentials set in `NEXTCLOUD_ADMIN_USER` / `NEXTCLOUD_ADMIN_PASSWORD`.
+At the end, Nextcloud is reachable at `https://<NEXTCLOUD_IP>` with the credentials set in `NEXTCLOUD_ADMIN_USER` / `NEXTCLOUD_ADMIN_PASSWORD`. Caddy terminates TLS in front of Nextcloud using a self-signed certificate (`tls internal`) for `NEXTCLOUD_IP`, so browsers and the Nextcloud mobile app will flag it as untrusted until you install Caddy's local root CA as a trusted certificate on each client — it lives at `/opt/nextcloud/caddy-data/caddy/pki/authorities/local/root.crt` inside the LXC. This only works over the local network; it does not expose Nextcloud to the internet.
+
+The Caddyfile sets `default_sni` to `NEXTCLOUD_IP` — this is required because clients don't send SNI when connecting to a bare IP address (per RFC 6066), so without it Caddy can't pick a certificate and the TLS handshake fails.
+
+If Caddy is already running and you only change `roles/nextcloud/templates/Caddyfile.j2`, re-running `configure-app.yml` regenerates the file and Ansible restarts the `nextcloud-caddy` container automatically (via a handler) so the new config takes effect.
+
+Since Caddy terminates TLS and talks plain HTTP to Nextcloud internally, Nextcloud otherwise has no way to know the original request was HTTPS and generates `http://` URLs for its assets — the browser then blocks them under CSP (`img-src` mismatch) because they don't match the page's real `https://` origin. `configure-app.yml` fixes this by setting `overwriteprotocol=https` and adding `172.16.0.0/12` (Docker's default bridge/user-network range) to `trusted_proxies`, so Nextcloud trusts Caddy's `X-Forwarded-Proto` header and generates `https://` URLs consistently.
 
 ### Running the steps individually
 

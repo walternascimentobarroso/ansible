@@ -8,6 +8,15 @@
     mode: "0600"
   no_log: true
 
+- name: Create Caddyfile
+  ansible.builtin.template:
+    src: Caddyfile.j2
+    dest: /opt/nextcloud/Caddyfile
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart Caddy
+
 - name: Ensure Nextcloud Docker Compose stack is running
   ansible.builtin.command:
     cmd: docker compose -f /opt/nextcloud/compose.yml up -d

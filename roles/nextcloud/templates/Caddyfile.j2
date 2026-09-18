@@ -1,0 +1,8 @@
+{
+    default_sni {{ nextcloud_ip }}
+}
+
+{{ nextcloud_ip }} {
+    tls internal
+    reverse_proxy nextcloud:80
+}

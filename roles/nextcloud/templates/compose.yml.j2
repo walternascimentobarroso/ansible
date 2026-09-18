@@ -30,8 +30,6 @@ services:
         condition: service_healthy
       redis:
         condition: service_started
-    ports:
-      - "80:80"
     environment:
       POSTGRES_HOST: postgres
       POSTGRES_DB: "{{ nextcloud_db_name }}"
@@ -48,3 +46,17 @@ services:
       - /opt/nextcloud/nextcloud:/var/www/html
       - /data:/var/www/html/data
       - /opt/nextcloud/skeleton:/skeleton:ro
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: nextcloud-caddy
+    restart: unless-stopped
+    depends_on:
+      - nextcloud
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /opt/nextcloud/Caddyfile:/etc/caddy/Caddyfile:ro
+      - /opt/nextcloud/caddy-data:/data
+      - /opt/nextcloud/caddy-config:/config

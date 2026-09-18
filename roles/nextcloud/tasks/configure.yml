@@ -13,6 +13,36 @@
       --value={{ ansible_host }}
   when: ansible_host not in nextcloud_trusted_domains_current.stdout_lines
 
+- name: Read Nextcloud overwrite protocol
+  ansible.builtin.command:
+    cmd: docker exec -u www-data nextcloud php occ config:system:get overwriteprotocol
+  register: nextcloud_overwriteprotocol
+  changed_when: false
+  failed_when: false
+
+- name: Configure Nextcloud overwrite protocol
+  ansible.builtin.command:
+    cmd: >
+      docker exec -u www-data nextcloud
+      php occ config:system:set overwriteprotocol
+      --value=https
+  when: nextcloud_overwriteprotocol.stdout != "https"
+
+- name: Read Nextcloud trusted proxies
+  ansible.builtin.command:
+    cmd: docker exec -u www-data nextcloud php occ config:system:get trusted_proxies
+  register: nextcloud_trusted_proxies_current
+  changed_when: false
+  failed_when: false
+
+- name: Configure Nextcloud trusted proxy
+  ansible.builtin.command:
+    cmd: >
+      docker exec -u www-data nextcloud
+      php occ config:system:set trusted_proxies 0
+      --value=172.16.0.0/12
+  when: "'172.16.0.0/12' not in nextcloud_trusted_proxies_current.stdout_lines"
+
 - name: Read Nextcloud skeleton directory
   ansible.builtin.command:
     cmd: docker exec -u www-data nextcloud php occ config:system:get skeletondirectory

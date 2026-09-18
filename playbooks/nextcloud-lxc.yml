@@ -40,6 +40,7 @@
           ostemplate: "{{ proxmox_template_storage }}:vztmpl/{{ proxmox_template }}"
           storage: "{{ proxmox_lxc_storage }}"
           rootfs: "{{ proxmox_lxc_storage }}:{{ nextcloud_disk }}"
+          mp0: "{{ proxmox_lxc_storage }}:{{ nextcloud_data_size }},mp={{ nextcloud_data_mount }}"
           cores: "{{ nextcloud_cores }}"
           memory: "{{ nextcloud_memory }}"
           swap: "{{ nextcloud_swap }}"
@@ -53,3 +54,16 @@
       when: nextcloud_lxc.status != 200
       register: nextcloud_lxc_creation
       no_log: true
+
+    - name: Get Nextcloud LXC configuration
+      ansible.builtin.command:
+        cmd: "pct config {{ nextcloud_vmid }}"
+      register: nextcloud_lxc_config
+      changed_when: false
+
+    - name: Add Nextcloud data volume
+      ansible.builtin.command:
+        cmd: >
+          pct set {{ nextcloud_vmid }}
+          -mp0 {{ proxmox_lxc_storage }}:{{ nextcloud_data_size }},mp={{ nextcloud_data_mount }}
+      when: "'mp0:' not in nextcloud_lxc_config.stdout"

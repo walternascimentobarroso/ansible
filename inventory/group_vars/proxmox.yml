@@ -18,3 +18,5 @@ nextcloud_cores: 2
 nextcloud_memory: 4096
 nextcloud_swap: 512
 nextcloud_disk: 32
+nextcloud_data_size: 200
+nextcloud_data_mount: /data

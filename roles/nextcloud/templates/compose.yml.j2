@@ -1,0 +1,49 @@
+---
+services:
+  postgres:
+    image: postgres:18-alpine
+    container_name: nextcloud-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: "{{ nextcloud_db_name }}"
+      POSTGRES_USER: "{{ nextcloud_db_user }}"
+      POSTGRES_PASSWORD: "{{ nextcloud_db_password }}"
+    volumes:
+      - /opt/nextcloud/postgres:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U {{ nextcloud_db_user }} -d {{ nextcloud_db_name }}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:alpine
+    container_name: nextcloud-redis
+    restart: unless-stopped
+
+  nextcloud:
+    image: nextcloud:apache
+    container_name: nextcloud
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    ports:
+      - "80:80"
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_DB: "{{ nextcloud_db_name }}"
+      POSTGRES_USER: "{{ nextcloud_db_user }}"
+      POSTGRES_PASSWORD: "{{ nextcloud_db_password }}"
+
+      REDIS_HOST: redis
+
+      NEXTCLOUD_ADMIN_USER: "{{ nextcloud_admin_user }}"
+      NEXTCLOUD_ADMIN_PASSWORD: "{{ nextcloud_admin_password }}"
+
+      NEXTCLOUD_TRUSTED_DOMAINS: "{{ nextcloud_trusted_domains }}"
+    volumes:
+      - /opt/nextcloud/nextcloud:/var/www/html
+      - /data:/var/www/html/data

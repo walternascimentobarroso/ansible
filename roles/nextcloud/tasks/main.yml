@@ -1,0 +1,69 @@
+---
+- name: Create Nextcloud application directory
+  ansible.builtin.file:
+    path: /opt/nextcloud
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Create PostgreSQL persistent directory
+  ansible.builtin.file:
+    path: /opt/nextcloud/postgres
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Create Nextcloud persistent directory
+  ansible.builtin.file:
+    path: /opt/nextcloud/nextcloud
+    state: directory
+    mode: "0755"
+
+- name: Configure Nextcloud data directory permissions
+  ansible.builtin.file:
+    path: /data
+    state: directory
+    owner: www-data
+    group: www-data
+    mode: "0750"
+
+- name: Create Nextcloud Docker Compose file
+  ansible.builtin.template:
+    src: compose.yml.j2
+    dest: /opt/nextcloud/compose.yml
+    owner: root
+    group: root
+    mode: "0600"
+  no_log: true
+
+- name: Ensure Nextcloud Docker Compose stack is running
+  ansible.builtin.command:
+    cmd: docker compose -f /opt/nextcloud/compose.yml up -d
+  changed_when: false
+
+- name: Wait for Nextcloud installation to complete
+  ansible.builtin.command:
+    cmd: docker exec -u www-data nextcloud php occ status --output=json
+  register: nextcloud_status
+  retries: 30
+  delay: 5
+  until:
+    - nextcloud_status.rc == 0
+    - (nextcloud_status.stdout | from_json).installed | bool
+  changed_when: false
+
+- name: Read Nextcloud trusted domains
+  ansible.builtin.command:
+    cmd: docker exec -u www-data nextcloud php occ config:system:get trusted_domains
+  register: nextcloud_trusted_domains
+  changed_when: false
+
+- name: Configure Nextcloud trusted domain
+  ansible.builtin.command:
+    cmd: >
+      docker exec -u www-data nextcloud
+      php occ config:system:set trusted_domains 1
+      --value={{ ansible_host }}
+  when: ansible_host not in nextcloud_trusted_domains.stdout_lines

@@ -4,8 +4,8 @@
   gather_facts: false
 
   tasks:
-      - name: Add Ansible SSH public key
-        ansible.posix.authorized_key:
-            user: root
-            state: present
-            key: "{{ lookup('file', '~/.ssh/proxmox.pub') }}"
+    - name: Add Ansible SSH public key
+      ansible.posix.authorized_key:
+        user: root
+        state: present
+        key: "{{ lookup('file', '~/.ssh/proxmox.pub') }}"

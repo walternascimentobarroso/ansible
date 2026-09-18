@@ -4,16 +4,16 @@
   gather_facts: false
 
   vars:
-      proxmox_api_user: "{{ lookup('env', 'PROXMOX_USER') }}"
+    proxmox_api_user: "{{ lookup('env', 'PROXMOX_USER') }}"
 
   tasks:
-      - name: Check if Ansible user exists
-        ansible.builtin.command:
-            cmd: pveum user list
-        register: proxmox_users
-        changed_when: false
+    - name: Check if Ansible user exists
+      ansible.builtin.command:
+        cmd: pveum user list
+      register: proxmox_users
+      changed_when: false
 
-      - name: Create Ansible user
-        ansible.builtin.command:
-            cmd: "pveum user add {{ proxmox_api_user }}"
-        when: proxmox_api_user not in proxmox_users.stdout
+    - name: Create Ansible user
+      ansible.builtin.command:
+        cmd: "pveum user add {{ proxmox_api_user }}"
+      when: proxmox_api_user not in proxmox_users.stdout

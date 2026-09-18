@@ -21,20 +21,28 @@
 
     - name: Create new API token
       ansible.builtin.command:
-        cmd: "pveum user token add {{ proxmox_api_user }} {{ proxmox_api_token_id }}"
+        cmd: >
+          pveum user token add
+          {{ proxmox_api_user }}
+          {{ proxmox_api_token_id }}
+          --privsep 0
       register: token_creation
+      no_log: true
 
-    - name: Show newly created token
-      ansible.builtin.debug:
-        var: token_creation.stdout
-
-    - name: Extract token secret from creation output
+    - name: Extract token secret
       ansible.builtin.set_fact:
-        proxmox_token_secret: "{{ token_creation.stdout | regex_search('value\\s*│\\s*([0-9a-f-]{36})', '\\1') | first }}"
+        proxmox_token_secret: >-
+          {{
+            token_creation.stdout
+            | regex_search('value\s*│\s*([0-9a-f-]{36})', '\1')
+            | first
+          }}
+      no_log: true
 
     - name: Update PROXMOX_TOKEN_SECRET in .env
       ansible.builtin.lineinfile:
         path: "{{ playbook_dir }}/../.env"
-        regexp: '^PROXMOX_TOKEN_SECRET='
+        regexp: "^PROXMOX_TOKEN_SECRET="
         line: "PROXMOX_TOKEN_SECRET={{ proxmox_token_secret }}"
       delegate_to: localhost
+      no_log: true

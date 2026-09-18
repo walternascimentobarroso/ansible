@@ -1,0 +1,52 @@
+---
+- name: Configure Proxmox API permissions
+  hosts: proxmox
+  gather_facts: false
+
+  vars:
+    proxmox_api_user: "{{ lookup('env', 'PROXMOX_USER') }}"
+
+  tasks:
+    - name: Validate Proxmox API user
+      ansible.builtin.assert:
+        that:
+          - proxmox_api_user | length > 0
+        fail_msg: "PROXMOX_USER must be defined."
+
+    - name: Check if Proxmox API user exists
+      ansible.builtin.command:
+        cmd: pveum user list
+      register: proxmox_users
+      changed_when: false
+
+    - name: Ensure Proxmox API user exists
+      ansible.builtin.assert:
+        that:
+          - proxmox_api_user in proxmox_users.stdout
+        fail_msg: "User {{ proxmox_api_user }} does not exist. Run proxmox-api-user.yml first."
+
+    - name: Get current ACLs
+      ansible.builtin.command:
+        cmd: pveum acl list
+      register: proxmox_acls
+      changed_when: false
+
+    - name: Grant PVEAdmin role to Ansible user
+      ansible.builtin.command:
+        cmd: >
+          pveum acl modify /
+          --users {{ proxmox_api_user }}
+          --roles PVEAdmin
+      when: >
+        proxmox_api_user not in proxmox_acls.stdout
+        or 'PVEAdmin' not in proxmox_acls.stdout
+
+    - name: Get updated ACLs
+      ansible.builtin.command:
+        cmd: pveum acl list
+      register: updated_acls
+      changed_when: false
+
+    - name: Show Ansible user permissions
+      ansible.builtin.debug:
+        var: updated_acls.stdout_lines

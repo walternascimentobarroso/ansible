@@ -1,0 +1,19 @@
+---
+- name: Download Proxmox LXC template
+  hosts: proxmox
+  gather_facts: false
+
+  tasks:
+    - name: Get downloaded LXC templates
+      ansible.builtin.command:
+        cmd: "pveam list {{ proxmox_template_storage }}"
+      register: downloaded_templates
+      changed_when: false
+
+    - name: Download Debian LXC template
+      ansible.builtin.command:
+        cmd: >
+          pveam download
+          {{ proxmox_template_storage }}
+          {{ proxmox_template }}
+      when: proxmox_template not in downloaded_templates.stdout

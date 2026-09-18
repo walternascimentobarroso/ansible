@@ -1,0 +1,55 @@
+---
+- name: Create Nextcloud LXC
+  hosts: proxmox
+  gather_facts: false
+
+  vars:
+    proxmox_host: "{{ lookup('env', 'PROXMOX_HOST') }}"
+    proxmox_api_user: "{{ lookup('env', 'PROXMOX_USER') }}"
+    proxmox_api_token_id: "{{ lookup('env', 'PROXMOX_TOKEN_ID') }}"
+    proxmox_api_token_secret: "{{ lookup('env', 'PROXMOX_TOKEN_SECRET') }}"
+
+    proxmox_api_url: "https://{{ proxmox_host }}:8006/api2/json"
+    proxmox_api_auth: "PVEAPIToken={{ proxmox_api_user }}!{{ proxmox_api_token_id }}={{ proxmox_api_token_secret }}"
+
+  tasks:
+    - name: Check if Nextcloud LXC exists
+      ansible.builtin.uri:
+        url: "{{ proxmox_api_url }}/nodes/{{ proxmox_node }}/lxc/{{ nextcloud_vmid }}/config"
+        method: GET
+        headers:
+          Authorization: "{{ proxmox_api_auth }}"
+        validate_certs: false
+        status_code:
+          - 200
+          - 500
+        return_content: true
+      register: nextcloud_lxc
+      no_log: true
+
+    - name: Create Nextcloud LXC
+      ansible.builtin.uri:
+        url: "{{ proxmox_api_url }}/nodes/{{ proxmox_node }}/lxc"
+        method: POST
+        headers:
+          Authorization: "{{ proxmox_api_auth }}"
+        body_format: form-urlencoded
+        body:
+          vmid: "{{ nextcloud_vmid }}"
+          hostname: "{{ nextcloud_hostname }}"
+          ostemplate: "{{ proxmox_template_storage }}:vztmpl/{{ proxmox_template }}"
+          storage: "{{ proxmox_lxc_storage }}"
+          rootfs: "{{ proxmox_lxc_storage }}:{{ nextcloud_disk }}"
+          cores: "{{ nextcloud_cores }}"
+          memory: "{{ nextcloud_memory }}"
+          swap: "{{ nextcloud_swap }}"
+          net0: "name=eth0,bridge={{ proxmox_bridge }},ip=dhcp"
+          unprivileged: 1
+          features: "nesting=1,keyctl=1"
+          start: 1
+        status_code: 200
+        return_content: true
+        validate_certs: false
+      when: nextcloud_lxc.status != 200
+      register: nextcloud_lxc_creation
+      no_log: true

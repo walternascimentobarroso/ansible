@@ -1,0 +1,74 @@
+---
+- name: Get Proxmox infrastructure information
+  hosts: localhost
+  gather_facts: false
+
+  vars:
+    proxmox_host: "{{ lookup('env', 'PROXMOX_HOST') }}"
+    proxmox_api_user: "{{ lookup('env', 'PROXMOX_USER') }}"
+    proxmox_api_token_id: "{{ lookup('env', 'PROXMOX_TOKEN_ID') }}"
+    proxmox_api_token_secret: "{{ lookup('env', 'PROXMOX_TOKEN_SECRET') }}"
+
+    proxmox_api_url: "https://{{ proxmox_host }}:8006/api2/json"
+    proxmox_api_auth: "PVEAPIToken={{ proxmox_api_user }}!{{ proxmox_api_token_id }}={{ proxmox_api_token_secret }}"
+
+  tasks:
+    - name: Get nodes
+      ansible.builtin.uri:
+        url: "{{ proxmox_api_url }}/nodes"
+        method: GET
+        headers:
+          Authorization: "{{ proxmox_api_auth }}"
+        validate_certs: false
+        return_content: true
+      register: nodes
+      no_log: true
+
+    - name: Get storage
+      ansible.builtin.uri:
+        url: "{{ proxmox_api_url }}/nodes/pve/storage"
+        method: GET
+        headers:
+          Authorization: "{{ proxmox_api_auth }}"
+        validate_certs: false
+        return_content: true
+      register: storage
+      no_log: true
+
+    - name: Get network
+      ansible.builtin.uri:
+        url: "{{ proxmox_api_url }}/nodes/pve/network"
+        method: GET
+        headers:
+          Authorization: "{{ proxmox_api_auth }}"
+        validate_certs: false
+        return_content: true
+      register: network
+      no_log: true
+
+    - name: Show nodes
+      ansible.builtin.debug:
+        var: nodes.json.data
+
+    - name: Show storage
+      ansible.builtin.debug:
+        var: storage.json.data
+
+    - name: Show network
+      ansible.builtin.debug:
+        var: network.json.data
+
+    - name: Get LXC templates
+      ansible.builtin.uri:
+        url: "{{ proxmox_api_url }}/nodes/pve/storage/local/content?content=vztmpl"
+        method: GET
+        headers:
+          Authorization: "{{ proxmox_api_auth }}"
+        validate_certs: false
+        return_content: true
+      register: templates
+      no_log: true
+
+    - name: Show LXC templates
+      ansible.builtin.debug:
+        var: templates.json.data

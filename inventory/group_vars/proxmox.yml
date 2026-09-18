@@ -2,3 +2,19 @@
 ansible_user: root
 ansible_ssh_private_key_file: /root/.ssh/proxmox
 ansible_python_interpreter: /usr/bin/python3
+
+proxmox_node: pve
+
+proxmox_template_storage: local
+proxmox_template: debian-13-standard_13.6-1_amd64.tar.zst
+
+proxmox_lxc_storage: local-lvm
+proxmox_bridge: vmbr0
+
+# Nextcloud LXC
+nextcloud_vmid: 101
+nextcloud_hostname: nextcloud
+nextcloud_cores: 2
+nextcloud_memory: 4096
+nextcloud_swap: 512
+nextcloud_disk: 32

@@ -1,16 +1,8 @@
 ---
 - name: Get Proxmox infrastructure information
-  hosts: localhost
+  hosts: proxmox
+  connection: local
   gather_facts: false
-
-  vars:
-    proxmox_host: "{{ lookup('env', 'PROXMOX_HOST') }}"
-    proxmox_api_user: "{{ lookup('env', 'PROXMOX_USER') }}"
-    proxmox_api_token_id: "{{ lookup('env', 'PROXMOX_TOKEN_ID') }}"
-    proxmox_api_token_secret: "{{ lookup('env', 'PROXMOX_TOKEN_SECRET') }}"
-
-    proxmox_api_url: "https://{{ proxmox_host }}:8006/api2/json"
-    proxmox_api_auth: "PVEAPIToken={{ proxmox_api_user }}!{{ proxmox_api_token_id }}={{ proxmox_api_token_secret }}"
 
   tasks:
     - name: Get nodes
@@ -26,7 +18,7 @@
 
     - name: Get storage
       ansible.builtin.uri:
-        url: "{{ proxmox_api_url }}/nodes/pve/storage"
+        url: "{{ proxmox_api_url }}/nodes/{{ proxmox_node }}/storage"
         method: GET
         headers:
           Authorization: "{{ proxmox_api_auth }}"
@@ -37,7 +29,7 @@
 
     - name: Get network
       ansible.builtin.uri:
-        url: "{{ proxmox_api_url }}/nodes/pve/network"
+        url: "{{ proxmox_api_url }}/nodes/{{ proxmox_node }}/network"
         method: GET
         headers:
           Authorization: "{{ proxmox_api_auth }}"
@@ -60,7 +52,7 @@
 
     - name: Get LXC templates
       ansible.builtin.uri:
-        url: "{{ proxmox_api_url }}/nodes/pve/storage/local/content?content=vztmpl"
+        url: "{{ proxmox_api_url }}/nodes/{{ proxmox_node }}/storage/{{ proxmox_template_storage }}/content?content=vztmpl"
         method: GET
         headers:
           Authorization: "{{ proxmox_api_auth }}"

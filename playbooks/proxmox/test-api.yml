@@ -1,13 +1,8 @@
 ---
 - name: Test Proxmox API
-  hosts: localhost
+  hosts: proxmox
+  connection: local
   gather_facts: false
-
-  vars:
-    proxmox_host: "{{ lookup('env', 'PROXMOX_HOST') }}"
-    proxmox_api_user: "{{ lookup('env', 'PROXMOX_USER') }}"
-    proxmox_api_token_id: "{{ lookup('env', 'PROXMOX_TOKEN_ID') }}"
-    proxmox_api_token_secret: "{{ lookup('env', 'PROXMOX_TOKEN_SECRET') }}"
 
   tasks:
     - name: Validate Proxmox API configuration
@@ -21,10 +16,10 @@
 
     - name: Get Proxmox nodes
       ansible.builtin.uri:
-        url: "https://{{ proxmox_host }}:8006/api2/json/nodes"
+        url: "{{ proxmox_api_url }}/nodes"
         method: GET
         headers:
-          Authorization: "PVEAPIToken={{ proxmox_api_user }}!{{ proxmox_api_token_id }}={{ proxmox_api_token_secret }}"
+          Authorization: "{{ proxmox_api_auth }}"
         validate_certs: false
         return_content: true
       register: proxmox_nodes

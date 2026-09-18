@@ -1,0 +1,20 @@
+---
+- name: Create Nextcloud LXC
+  hosts: proxmox
+  gather_facts: false
+
+  vars:
+    lxc_vmid: "{{ nextcloud_vmid }}"
+    lxc_hostname: "{{ nextcloud_hostname }}"
+    lxc_cores: "{{ nextcloud_cores }}"
+    lxc_memory: "{{ nextcloud_memory }}"
+    lxc_swap: "{{ nextcloud_swap }}"
+    lxc_disk: "{{ nextcloud_disk }}"
+    lxc_data_size: "{{ nextcloud_data_size }}"
+    lxc_data_mount: "{{ nextcloud_data_mount }}"
+    lxc_ip: "{{ nextcloud_ip }}"
+    lxc_cidr: "{{ nextcloud_cidr }}"
+    lxc_gateway: "{{ nextcloud_gateway }}"
+
+  roles:
+    - proxmox_lxc

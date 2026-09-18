@@ -3,9 +3,6 @@
   hosts: proxmox
   gather_facts: false
 
-  vars:
-    proxmox_api_user: "{{ lookup('env', 'PROXMOX_USER') }}"
-
   tasks:
     - name: Check if Ansible user exists
       ansible.builtin.command:

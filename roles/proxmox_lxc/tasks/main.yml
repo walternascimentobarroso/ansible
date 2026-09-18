@@ -1,0 +1,60 @@
+---
+- name: Check if LXC {{ lxc_vmid }} exists
+  ansible.builtin.uri:
+    url: "{{ proxmox_api_url }}/nodes/{{ proxmox_node }}/lxc/{{ lxc_vmid }}/config"
+    method: GET
+    headers:
+      Authorization: "{{ proxmox_api_auth }}"
+    validate_certs: false
+    status_code:
+      - 200
+      - 500
+    return_content: true
+  register: proxmox_lxc_lookup
+  no_log: true
+
+- name: Create LXC {{ lxc_vmid }}
+  ansible.builtin.uri:
+    url: "{{ proxmox_api_url }}/nodes/{{ proxmox_node }}/lxc"
+    method: POST
+    headers:
+      Authorization: "{{ proxmox_api_auth }}"
+    body_format: form-urlencoded
+    body:
+      vmid: "{{ lxc_vmid }}"
+      hostname: "{{ lxc_hostname }}"
+      ostemplate: "{{ proxmox_template_storage }}:vztmpl/{{ proxmox_template }}"
+      storage: "{{ proxmox_lxc_storage }}"
+      rootfs: "{{ proxmox_lxc_storage }}:{{ lxc_disk }}"
+      mp0: "{{ proxmox_lxc_storage }}:{{ lxc_data_size }},mp={{ lxc_data_mount }}"
+      cores: "{{ lxc_cores }}"
+      memory: "{{ lxc_memory }}"
+      swap: "{{ lxc_swap }}"
+      net0: >-
+        name=eth0,bridge={{ proxmox_bridge }},{{
+          (lxc_ip | length > 0) | ternary(
+            'ip=' ~ lxc_ip ~ '/' ~ lxc_cidr ~ ',gw=' ~ lxc_gateway,
+            'ip=dhcp'
+          )
+        }}
+      unprivileged: 1
+      features: "nesting=1,keyctl=1"
+      start: 1
+    status_code: 200
+    return_content: true
+    validate_certs: false
+  when: proxmox_lxc_lookup.status != 200
+  no_log: true
+
+- name: Get LXC {{ lxc_vmid }} configuration
+  ansible.builtin.command:
+    cmd: "pct config {{ lxc_vmid }}"
+  register: proxmox_lxc_config
+  changed_when: false
+
+- name: Add LXC {{ lxc_vmid }} data volume
+  ansible.builtin.command:
+    cmd: >
+      pct set {{ lxc_vmid }}
+      -mp0 {{ proxmox_lxc_storage }}:{{ lxc_data_size }},mp={{ lxc_data_mount }}
+  when: "'mp0:' not in proxmox_lxc_config.stdout"

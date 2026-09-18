@@ -3,9 +3,6 @@
   hosts: proxmox
   gather_facts: false
 
-  vars:
-    proxmox_api_user: "{{ lookup('env', 'PROXMOX_USER') }}"
-
   tasks:
     - name: Validate Proxmox API user
       ansible.builtin.assert:
@@ -23,7 +20,7 @@
       ansible.builtin.assert:
         that:
           - proxmox_api_user in proxmox_users.stdout
-        fail_msg: "User {{ proxmox_api_user }} does not exist. Run proxmox-api-user.yml first."
+        fail_msg: "User {{ proxmox_api_user }} does not exist. Run create-api-user.yml first."
 
     - name: Get current ACLs
       ansible.builtin.command:

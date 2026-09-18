@@ -8,7 +8,9 @@ Homelab Ansible project. Ansible itself runs inside a Docker container (not inst
 
 The `proxmoxer` dependency indicates this inventory/playbooks are intended to target a Proxmox-based homelab.
 
-`inventory/`, `playbooks/`, and `roles/` are currently empty — populate them with standard Ansible inventory files, playbooks, and roles respectively.
+Playbooks are grouped by domain under `playbooks/<domain>/` (currently `proxmox/` and `nextcloud/`). Each domain has aggregator playbooks (`setup.yml`, `deploy.yml`) that `import_playbook` the individual steps in the right order. Reusable, service-agnostic logic (e.g. creating a Proxmox LXC) lives in `roles/`, not in the playbooks.
+
+Variables are layered in `inventory/group_vars/`: `all.yml` holds settings common to every managed host (SSH user/key, interpreter), `proxmox.yml` holds hypervisor and API-auth config, and `nextcloud.yml` holds that service's LXC spec and app config. Secrets are only ever read from `.env` via `lookup('env', ...)` inside `group_vars`, never hardcoded or re-looked-up inside individual playbooks.
 
 ## Commands
 
@@ -23,9 +25,9 @@ make destroy            # stop and remove the container
 make rebuild             # destroy + build + up (rebuild image from scratch)
 make logs               # follow container logs
 
-make ping                                    # ping all hosts in the inventory
-make playbook PLAYBOOK=site.yml              # run a playbook
-make syntax-check PLAYBOOK=site.yml          # syntax-check a playbook without running it
+make ping                                              # ping all hosts in the inventory
+make playbook PLAYBOOK=playbooks/nextcloud/deploy.yml  # run a playbook (or an aggregator like deploy.yml/setup.yml)
+make syntax-check PLAYBOOK=playbooks/nextcloud/deploy.yml  # syntax-check a playbook without running it
 ```
 
 The Makefile auto-detects whether `docker-compose` (standalone) or `docker compose` (plugin) is available and uses whichever is present.

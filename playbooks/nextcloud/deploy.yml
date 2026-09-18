@@ -1,0 +1,9 @@
+---
+- name: Full Nextcloud deployment
+  ansible.builtin.import_playbook: create-lxc.yml
+
+- name: Full Nextcloud deployment
+  ansible.builtin.import_playbook: bootstrap-lxc.yml
+
+- name: Full Nextcloud deployment
+  ansible.builtin.import_playbook: configure-app.yml

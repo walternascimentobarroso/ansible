@@ -66,3 +66,10 @@ playbook: ## Run a playbook, e.g. make playbook PLAYBOOK=site.yml
 .PHONY: syntax-check
 syntax-check: ## Check syntax of a playbook, e.g. make syntax-check PLAYBOOK=site.yml
 	$(DOCKER_COMPOSE) exec $(SERVICE) ansible-playbook $(PLAYBOOK) --syntax-check
+
+.PHONY: syntax-check-all
+syntax-check-all: ## Check syntax of every playbook under playbooks/
+	@for playbook in $$(find playbooks -name '*.yml' | sort); do \
+		echo "${CYAN}==> $$playbook${NOCOLOR}"; \
+		$(DOCKER_COMPOSE) exec -T $(SERVICE) ansible-playbook "$$playbook" --syntax-check || exit 1; \
+	done

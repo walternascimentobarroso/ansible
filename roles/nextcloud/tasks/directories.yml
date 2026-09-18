@@ -1,0 +1,30 @@
+---
+- name: Create Nextcloud application directory
+  ansible.builtin.file:
+    path: /opt/nextcloud
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Create PostgreSQL persistent directory
+  ansible.builtin.file:
+    path: /opt/nextcloud/postgres
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Create Nextcloud persistent directory
+  ansible.builtin.file:
+    path: /opt/nextcloud/nextcloud
+    state: directory
+    mode: "0755"
+
+- name: Configure Nextcloud data directory permissions
+  ansible.builtin.file:
+    path: /data
+    state: directory
+    owner: www-data
+    group: www-data
+    mode: "0750"

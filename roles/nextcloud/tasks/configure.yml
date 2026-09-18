@@ -1,0 +1,14 @@
+---
+- name: Read Nextcloud trusted domains
+  ansible.builtin.command:
+    cmd: docker exec -u www-data nextcloud php occ config:system:get trusted_domains
+  register: nextcloud_trusted_domains_current
+  changed_when: false
+
+- name: Configure Nextcloud trusted domain
+  ansible.builtin.command:
+    cmd: >
+      docker exec -u www-data nextcloud
+      php occ config:system:set trusted_domains 1
+      --value={{ ansible_host }}
+  when: ansible_host not in nextcloud_trusted_domains_current.stdout_lines

@@ -3,10 +3,6 @@
   hosts: proxmox
   gather_facts: false
 
-  vars:
-    proxmox_api_user: "{{ lookup('env', 'PROXMOX_USER') }}"
-    proxmox_api_token_id: "{{ lookup('env', 'PROXMOX_TOKEN_ID') }}"
-
   tasks:
     - name: Check existing API tokens
       ansible.builtin.command:
@@ -41,7 +37,7 @@
 
     - name: Update PROXMOX_TOKEN_SECRET in .env
       ansible.builtin.lineinfile:
-        path: "{{ playbook_dir }}/../.env"
+        path: "{{ playbook_dir }}/../../.env"
         regexp: "^PROXMOX_TOKEN_SECRET="
         line: "PROXMOX_TOKEN_SECRET={{ proxmox_token_secret }}"
       delegate_to: localhost

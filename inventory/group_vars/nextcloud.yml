@@ -1,4 +1,21 @@
 ---
-ansible_user: root
-ansible_ssh_private_key_file: /root/.ssh/proxmox
-ansible_python_interpreter: /usr/bin/python3
+# LXC provisioning (consumed by roles/proxmox_lxc on the proxmox host)
+nextcloud_vmid: "{{ lookup('env', 'NEXTCLOUD_VMID') }}"
+nextcloud_hostname: "{{ lookup('env', 'NEXTCLOUD_HOSTNAME') }}"
+nextcloud_cores: "{{ lookup('env', 'NEXTCLOUD_CORES') }}"
+nextcloud_memory: "{{ lookup('env', 'NEXTCLOUD_MEMORY') }}"
+nextcloud_swap: "{{ lookup('env', 'NEXTCLOUD_SWAP') }}"
+nextcloud_disk: "{{ lookup('env', 'NEXTCLOUD_DISK') }}"
+nextcloud_data_size: "{{ lookup('env', 'NEXTCLOUD_DATA_SIZE') }}"
+nextcloud_data_mount: "{{ lookup('env', 'NEXTCLOUD_DATA_MOUNT') }}"
+nextcloud_ip: "{{ lookup('env', 'NEXTCLOUD_IP') }}"
+nextcloud_cidr: "{{ lookup('env', 'NEXTCLOUD_CIDR') }}"
+nextcloud_gateway: "{{ lookup('env', 'NEXTCLOUD_GATEWAY') }}"
+
+# Application configuration
+nextcloud_db_name: "{{ lookup('env', 'NEXTCLOUD_DB_NAME') }}"
+nextcloud_db_user: "{{ lookup('env', 'NEXTCLOUD_DB_USER') }}"
+nextcloud_db_password: "{{ lookup('env', 'NEXTCLOUD_DB_PASSWORD') }}"
+nextcloud_admin_user: "{{ lookup('env', 'NEXTCLOUD_ADMIN_USER') }}"
+nextcloud_admin_password: "{{ lookup('env', 'NEXTCLOUD_ADMIN_PASSWORD') }}"
+nextcloud_trusted_domains: "{{ lookup('env', 'NEXTCLOUD_IP') }}"

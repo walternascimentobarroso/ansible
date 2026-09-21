@@ -13,6 +13,7 @@
     lxc_ip: "{{ pihole_ip }}"
     lxc_cidr: "{{ pihole_cidr }}"
     lxc_gateway: "{{ pihole_gateway }}"
+    lxc_features: ""
 
   roles:
     - proxmox_lxc

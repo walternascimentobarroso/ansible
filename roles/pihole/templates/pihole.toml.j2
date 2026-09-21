@@ -1,0 +1,4 @@
+[dns]
+upstreams = {{ pihole_upstream_dns | to_json }}
+interface = "eth0"
+listeningMode = "LOCAL"

@@ -5,3 +5,5 @@ lxc_gateway: ""
 
 lxc_data_size: ""
 lxc_data_mount: ""
+
+lxc_features: ""

@@ -32,8 +32,12 @@
           )
         }}
       unprivileged: 1
-      features: "nesting=1"
       start: 1
+
+- name: Add features to LXC creation parameters
+  ansible.builtin.set_fact:
+    lxc_create_body: "{{ lxc_create_body | combine({'features': lxc_features}) }}"
+  when: lxc_features | length > 0
 
 - name: Add data volume to LXC creation parameters
   ansible.builtin.set_fact:

@@ -15,6 +15,7 @@
     lxc_ip: "{{ nextcloud_ip }}"
     lxc_cidr: "{{ nextcloud_cidr }}"
     lxc_gateway: "{{ nextcloud_gateway }}"
+    lxc_features: "nesting=1"
 
   roles:
     - proxmox_lxc

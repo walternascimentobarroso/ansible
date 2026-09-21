@@ -1,0 +1,3 @@
+---
+pihole_repo: "https://github.com/pi-hole/pi-hole.git"
+pihole_repo_path: "/opt/pihole-install"

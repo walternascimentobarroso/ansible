@@ -1,0 +1,65 @@
+---
+- name: Install Pi-hole prerequisites
+  ansible.builtin.apt:
+    name:
+      - git
+      - curl
+      - ca-certificates
+      - dnsutils
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Clone Pi-hole repository
+  ansible.builtin.git:
+    repo: "{{ pihole_repo }}"
+    dest: "{{ pihole_repo_path }}"
+    version: "{{ pihole_version }}"
+    depth: 1
+    force: false
+
+- name: Check if Pi-hole is already installed
+  ansible.builtin.stat:
+    path: /usr/local/bin/pihole
+  register: pihole_binary
+
+- name: Preseed and install Pi-hole
+  when: not pihole_binary.stat.exists
+  block:
+    - name: Create Pi-hole config directory
+      ansible.builtin.file:
+        path: /etc/pihole
+        state: directory
+        mode: "0755"
+
+    - name: Write pihole.toml
+      ansible.builtin.template:
+        src: pihole.toml.j2
+        dest: /etc/pihole/pihole.toml
+        mode: "0644"
+
+    - name: Install Pi-hole
+      ansible.builtin.command:
+        cmd: bash basic-install.sh --unattended
+        chdir: "{{ pihole_repo_path }}/automated install"
+      changed_when: true
+
+    - name: Update Pi-hole gravity database
+      ansible.builtin.command:
+        cmd: pihole -g
+      changed_when: true
+
+- name: Set Pi-hole admin password
+  ansible.builtin.command:
+    cmd: "pihole setpassword {{ pihole_admin_password | quote }}"
+  changed_when: false
+  no_log: true
+
+- name: Verify Pi-hole answers local DNS queries
+  ansible.builtin.command:
+    cmd: "dig +short +time=2 +tries=1 @{{ ansible_host }} example.com"
+  register: pihole_dns_check
+  until: pihole_dns_check.stdout | length > 0
+  retries: 5
+  delay: 3
+  changed_when: false

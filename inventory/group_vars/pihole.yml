@@ -1,0 +1,4 @@
+---
+pihole_version: "{{ lookup('env', 'PIHOLE_VERSION') }}"
+pihole_upstream_dns: "{{ lookup('env', 'PIHOLE_UPSTREAM_DNS').split(',') }}"
+pihole_admin_password: "{{ lookup('env', 'PIHOLE_ADMIN_PASSWORD') }}"

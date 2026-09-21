@@ -1,0 +1,6 @@
+---
+- name: Full Pi-hole deployment
+  ansible.builtin.import_playbook: create-lxc.yml
+
+- name: Full Pi-hole deployment
+  ansible.builtin.import_playbook: bootstrap-lxc.yml

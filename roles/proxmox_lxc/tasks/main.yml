@@ -13,20 +13,14 @@
   register: proxmox_lxc_lookup
   no_log: true
 
-- name: Create LXC {{ lxc_vmid }}
-  ansible.builtin.uri:
-    url: "{{ proxmox_api_url }}/nodes/{{ proxmox_node }}/lxc"
-    method: POST
-    headers:
-      Authorization: "{{ proxmox_api_auth }}"
-    body_format: form-urlencoded
-    body:
+- name: Build LXC creation parameters
+  ansible.builtin.set_fact:
+    lxc_create_body:
       vmid: "{{ lxc_vmid }}"
       hostname: "{{ lxc_hostname }}"
       ostemplate: "{{ proxmox_template_storage }}:vztmpl/{{ proxmox_template }}"
       storage: "{{ proxmox_lxc_storage }}"
       rootfs: "{{ proxmox_lxc_storage }}:{{ lxc_disk }}"
-      mp0: "{{ proxmox_lxc_storage }}:{{ lxc_data_size }},mp={{ lxc_data_mount }}"
       cores: "{{ lxc_cores }}"
       memory: "{{ lxc_memory }}"
       swap: "{{ lxc_swap }}"
@@ -38,8 +32,29 @@
           )
         }}
       unprivileged: 1
-      features: "nesting=1,keyctl=1"
+      features: "nesting=1"
       start: 1
+
+- name: Add data volume to LXC creation parameters
+  ansible.builtin.set_fact:
+    lxc_create_body: >-
+      {{
+        lxc_create_body | combine({
+          'mp0': proxmox_lxc_storage ~ ':' ~ lxc_data_size ~ ',mp=' ~ lxc_data_mount
+        })
+      }}
+  when:
+    - lxc_data_size | length > 0
+    - lxc_data_mount | length > 0
+
+- name: Create LXC {{ lxc_vmid }}
+  ansible.builtin.uri:
+    url: "{{ proxmox_api_url }}/nodes/{{ proxmox_node }}/lxc"
+    method: POST
+    headers:
+      Authorization: "{{ proxmox_api_auth }}"
+    body_format: form-urlencoded
+    body: "{{ lxc_create_body }}"
     status_code: 200
     return_content: true
     validate_certs: false
@@ -57,4 +72,7 @@
     cmd: >
       pct set {{ lxc_vmid }}
       -mp0 {{ proxmox_lxc_storage }}:{{ lxc_data_size }},mp={{ lxc_data_mount }}
-  when: "'mp0:' not in proxmox_lxc_config.stdout"
+  when:
+    - lxc_data_size | length > 0
+    - lxc_data_mount | length > 0
+    - "'mp0:' not in proxmox_lxc_config.stdout"

@@ -2,3 +2,6 @@
 lxc_ip: ""
 lxc_cidr: ""
 lxc_gateway: ""
+
+lxc_data_size: ""
+lxc_data_mount: ""

@@ -1,10 +1,10 @@
 ---
-- name: Bootstrap Nextcloud LXC
+- name: Bootstrap Pi-hole LXC
   hosts: proxmox
   gather_facts: false
 
   vars:
-    lxc_vmid: "{{ nextcloud_vmid }}"
+    lxc_vmid: "{{ pihole_vmid }}"
 
   roles:
     - lxc_bootstrap

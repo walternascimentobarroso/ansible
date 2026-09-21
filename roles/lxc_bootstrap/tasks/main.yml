@@ -1,0 +1,62 @@
+---
+- name: Check LXC {{ lxc_vmid }} status
+  ansible.builtin.command:
+    cmd: "pct status {{ lxc_vmid }}"
+  register: lxc_status
+  changed_when: false
+
+- name: Start LXC {{ lxc_vmid }}
+  ansible.builtin.command:
+    cmd: "pct start {{ lxc_vmid }}"
+  when: "'status: running' not in lxc_status.stdout"
+  changed_when: true
+
+- name: Wait for LXC {{ lxc_vmid }} to be ready
+  ansible.builtin.command:
+    cmd: "pct exec {{ lxc_vmid }} -- true"
+  register: lxc_ready
+  retries: 10
+  delay: 2
+  until: lxc_ready.rc == 0
+  changed_when: false
+
+- name: Install OpenSSH server
+  ansible.builtin.command:
+    cmd: >
+      pct exec {{ lxc_vmid }} --
+      bash -c "apt-get update && apt-get install -y openssh-server"
+  changed_when: true
+
+- name: Create root SSH directory
+  ansible.builtin.command:
+    cmd: >
+      pct exec {{ lxc_vmid }} --
+      mkdir -p /root/.ssh
+  changed_when: false
+
+- name: Install Ansible SSH public key
+  ansible.builtin.command:
+    cmd: >
+      pct exec {{ lxc_vmid }} --
+      bash -c "echo '{{ lookup('file', lookup('env', 'HOME') + '/.ssh/proxmox.pub') }}' > /root/.ssh/authorized_keys"
+
+- name: Set SSH directory permissions
+  ansible.builtin.command:
+    cmd: >
+      pct exec {{ lxc_vmid }} --
+      chmod 700 /root/.ssh
+  changed_when: false
+
+- name: Set authorized_keys permissions
+  ansible.builtin.command:
+    cmd: >
+      pct exec {{ lxc_vmid }} --
+      chmod 600 /root/.ssh/authorized_keys
+  changed_when: false
+
+- name: Enable and start SSH
+  ansible.builtin.command:
+    cmd: >
+      pct exec {{ lxc_vmid }} --
+      systemctl enable --now ssh
+  changed_when: false

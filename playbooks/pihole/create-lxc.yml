@@ -1,0 +1,18 @@
+---
+- name: Create Pi-hole LXC
+  hosts: proxmox
+  gather_facts: false
+
+  vars:
+    lxc_vmid: "{{ pihole_vmid }}"
+    lxc_hostname: "{{ pihole_hostname }}"
+    lxc_cores: "{{ pihole_cores }}"
+    lxc_memory: "{{ pihole_memory }}"
+    lxc_swap: "{{ pihole_swap }}"
+    lxc_disk: "{{ pihole_disk }}"
+    lxc_ip: "{{ pihole_ip }}"
+    lxc_cidr: "{{ pihole_cidr }}"
+    lxc_gateway: "{{ pihole_gateway }}"
+
+  roles:
+    - proxmox_lxc

@@ -49,6 +49,30 @@
         cmd: pihole -g
       changed_when: true
 
+- name: Configure Pi-hole DHCP
+  ansible.builtin.command:
+    cmd: >-
+      pihole-FTL --config {{ item.key }} {{ item.value }}
+  loop:
+    - key: dhcp.start
+      value: "{{ pihole_dhcp_start }}"
+    - key: dhcp.end
+      value: "{{ pihole_dhcp_end }}"
+    - key: dhcp.router
+      value: "{{ pihole_dhcp_router }}"
+    - key: dhcp.netmask
+      value: "{{ pihole_dhcp_netmask }}"
+    - key: dhcp.leaseTime
+      value: "{{ pihole_dhcp_lease_time }}"
+    - key: dhcp.ipv6
+      value: "false"
+  changed_when: false
+
+- name: Configure Pi-hole DHCP server state
+  ansible.builtin.command:
+    cmd: "pihole-FTL --config dhcp.active {{ pihole_dhcp_enabled }}"
+  changed_when: false
+
 - name: Set Pi-hole admin password
   ansible.builtin.command:
     cmd: "pihole setpassword {{ pihole_admin_password | quote }}"

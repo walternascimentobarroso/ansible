@@ -2,3 +2,12 @@
 upstreams = {{ pihole_upstream_dns | to_json }}
 interface = "eth0"
 listeningMode = "LOCAL"
+
+[dhcp]
+active = {{ pihole_dhcp_enabled }}
+start = "{{ pihole_dhcp_start }}"
+end = "{{ pihole_dhcp_end }}"
+router = "{{ pihole_dhcp_router }}"
+netmask = "{{ pihole_dhcp_netmask }}"
+leaseTime = "{{ pihole_dhcp_lease_time }}"
+ipv6 = false

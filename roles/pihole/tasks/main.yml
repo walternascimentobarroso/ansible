@@ -73,6 +73,15 @@
     cmd: "pihole-FTL --config dhcp.active {{ pihole_dhcp_enabled }}"
   changed_when: false
 
+- name: Disable Pi-hole NTP services
+  ansible.builtin.command:
+    cmd: "pihole-FTL --config {{ item }} false"
+  loop:
+    - ntp.sync.active
+    - ntp.ipv4.active
+    - ntp.ipv6.active
+  changed_when: false
+
 - name: Set Pi-hole admin password
   ansible.builtin.command:
     cmd: "pihole setpassword {{ pihole_admin_password | quote }}"
@@ -81,9 +90,18 @@
 
 - name: Verify Pi-hole answers local DNS queries
   ansible.builtin.command:
-    cmd: "dig +short +time=2 +tries=1 @{{ ansible_host }} example.com"
+    cmd: "dig +short +time=2 +tries=1 @127.0.0.1 example.com"
   register: pihole_dns_check
-  until: pihole_dns_check.stdout | length > 0
+  until:
+    - pihole_dns_check.rc == 0
+    - pihole_dns_check.stdout | length > 0
   retries: 5
   delay: 3
   changed_when: false
+  failed_when: false
+
+- name: Fail if Pi-hole DNS is not responding
+  ansible.builtin.fail:
+    msg: "Pi-hole DNS did not respond after 5 attempts."
+  when:
+    - pihole_dns_check.rc != 0 or pihole_dns_check.stdout | length == 0

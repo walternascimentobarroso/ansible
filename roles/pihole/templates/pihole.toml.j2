@@ -11,3 +11,12 @@ router = "{{ pihole_dhcp_router }}"
 netmask = "{{ pihole_dhcp_netmask }}"
 leaseTime = "{{ pihole_dhcp_lease_time }}"
 ipv6 = false
+
+[ntp.ipv4]
+active = false
+
+[ntp.ipv6]
+active = false
+
+[ntp.sync]
+active = false

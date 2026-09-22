@@ -1,0 +1,40 @@
+---
+- name: Configure Proxmox repositories
+  hosts: proxmox
+  become: true
+
+  tasks:
+    - name: Disable Proxmox enterprise repository
+      ansible.builtin.command:
+        cmd: >
+          mv /etc/apt/sources.list.d/pve-enterprise.sources
+          /etc/apt/sources.list.d/pve-enterprise.sources.disabled
+      args:
+        removes: /etc/apt/sources.list.d/pve-enterprise.sources
+        creates: /etc/apt/sources.list.d/pve-enterprise.sources.disabled
+
+    - name: Disable Ceph enterprise repository
+      ansible.builtin.command:
+        cmd: >
+          mv /etc/apt/sources.list.d/ceph.sources
+          /etc/apt/sources.list.d/ceph.sources.disabled
+      args:
+        removes: /etc/apt/sources.list.d/ceph.sources
+        creates: /etc/apt/sources.list.d/ceph.sources.disabled
+
+    - name: Configure Proxmox no-subscription repository
+      ansible.builtin.copy:
+        dest: /etc/apt/sources.list.d/pve-no-subscription.sources
+        owner: root
+        group: root
+        mode: "0644"
+        content: |
+          Types: deb
+          URIs: http://download.proxmox.com/debian/pve
+          Suites: trixie
+          Components: pve-no-subscription
+          Signed-By: /usr/share/keyrings/proxmox-archive-keyring.gpg
+
+    - name: Update APT package cache
+      ansible.builtin.apt:
+        update_cache: true

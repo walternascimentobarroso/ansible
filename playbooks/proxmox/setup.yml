@@ -1,9 +1,9 @@
 ---
-- name: Full Proxmox API setup
+- name: Create Proxmox API user
   ansible.builtin.import_playbook: create-api-user.yml
 
-- name: Full Proxmox API setup
+- name: Create Proxmox API token
   ansible.builtin.import_playbook: create-api-token.yml
 
-- name: Full Proxmox API setup
+- name: Grant Proxmox API permissions
   ansible.builtin.import_playbook: grant-api-permissions.yml

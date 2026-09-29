@@ -161,7 +161,7 @@ Point your router's DNS (or your devices) at `PIHOLE_IP`. If `PIHOLE_DHCP_ENABLE
 
 ## 7. Create and configure Traefik
 
-Traefik is the reverse proxy that terminates HTTPS for every internal service. First generate the Root CA and the `*.home.arpa` certificate — the playbook copies them from `certs/homelab/traefik/` — as described in [docs/certificates.md](docs/certificates.md):
+Traefik is the reverse proxy that terminates HTTPS for every internal service. First generate the Root CA and the Traefik certificate — the playbook copies them from `certs/homelab/traefik/` — as described in [docs/certificates.md](docs/certificates.md):
 
 ```bash
 ./scripts/generate-homelab-certificates.sh
@@ -178,10 +178,23 @@ make playbook PLAYBOOK=playbooks/traefik/configure-app.yml
 `configure-app.yml` installs Docker, copies the certificate, and deploys Traefik with:
 
 - `traefik.yml.j2` — static config: HTTP→HTTPS redirect, Docker and file providers.
-- `tls.yml.j2` — the `*.home.arpa` certificate as default.
+- `tls.yml.j2` — the homelab certificate as default.
 - `pihole.yml.j2` / `nextcloud.yml.j2` — routes `pihole.<HOMELAB_DOMAIN>` and `nextcloud.<HOMELAB_DOMAIN>` to their LXCs over plain HTTP.
 
 The Traefik dashboard is at `https://traefik.<HOMELAB_DOMAIN>` and a test service at `https://whoami.<HOMELAB_DOMAIN>`.
+
+### Adding a new service to Traefik
+
+The certificate is **not** a `*.home.arpa` wildcard: `home.arpa` is on the Public Suffix List, so Apple's TLS stack (macOS/iOS apps such as the Nextcloud Desktop File Provider) rejects it, even though browsers and `curl` accept it. Instead it lists one SAN per host, read from the `Host(...)` rules in `roles/traefik/templates/*.j2`.
+
+So every time you add a `Host(...)` rule, regenerate the certificate and redeploy Traefik (the Root CA is kept, so clients don't need to reinstall anything):
+
+```bash
+./scripts/generate-homelab-certificates.sh
+make playbook PLAYBOOK=playbooks/traefik/configure-app.yml
+```
+
+The playbook restarts Traefik when the certificate changes.
 
 ## 8. Create and configure the Nextcloud machine
 
@@ -197,7 +210,7 @@ This aggregates, in order:
 2. `bootstrap-lxc.yml` — installs `openssh-server` inside the LXC and authorizes the automation's key.
 3. `configure-app.yml` — installs Docker on the LXC and brings up the Nextcloud stack (Postgres, Redis, Nextcloud), waiting for the installation to finish.
 
-Nextcloud itself only serves plain HTTP on port 80 of the LXC. HTTPS is handled by the Traefik LXC (`TRAEFIK_IP`), which routes `nextcloud.<HOMELAB_DOMAIN>` to `http://<NEXTCLOUD_IP>` via the file-provider config in `roles/traefik/templates/nextcloud.yml.j2`, using the `*.home.arpa` certificate signed by the homelab Root CA (see [docs/certificates.md](docs/certificates.md)). This requires `HOMELAB_DOMAIN` and `TRAEFIK_IP` to be set in `.env`, and `nextcloud.<HOMELAB_DOMAIN>` to resolve to `TRAEFIK_IP` (Pi-hole handles this).
+Nextcloud itself only serves plain HTTP on port 80 of the LXC. HTTPS is handled by the Traefik LXC (`TRAEFIK_IP`), which routes `nextcloud.<HOMELAB_DOMAIN>` to `http://<NEXTCLOUD_IP>` via the file-provider config in `roles/traefik/templates/nextcloud.yml.j2`, using the homelab certificate signed by the homelab Root CA (see [docs/certificates.md](docs/certificates.md)). This requires `HOMELAB_DOMAIN` and `TRAEFIK_IP` to be set in `.env`, and `nextcloud.<HOMELAB_DOMAIN>` to resolve to `TRAEFIK_IP` (Pi-hole handles this).
 
 At the end, Nextcloud is reachable at `https://nextcloud.<HOMELAB_DOMAIN>` with the credentials set in `NEXTCLOUD_ADMIN_USER` / `NEXTCLOUD_ADMIN_PASSWORD`. This only works over the local network; it does not expose Nextcloud to the internet.
 
@@ -256,7 +269,7 @@ ansible/
 │   ├── traefik/                    # Traefik config, TLS and per-service routes
 │   └── nextcloud/                  # directories, docker compose stack, configuration
 ├── scripts/
-│   └── generate-homelab-certificates.sh  # Root CA + *.home.arpa certificate
+│   └── generate-homelab-certificates.sh  # Root CA + Traefik certificate (one SAN per host)
 └── docs/
     └── certificates.md             # certificate generation and client install
 ```

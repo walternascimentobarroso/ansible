@@ -35,3 +35,4 @@ The Makefile auto-detects whether `docker-compose` (standalone) or `docker compo
 ## Conventions
 
 - Indentation is 4 spaces, LF line endings, UTF-8 (see `.editorconfig`).
+- The Traefik certificate has one SAN per host, taken from the `Host(...)` rules in `roles/traefik/templates/*.j2`. Never use a `*.home.arpa` wildcard: `home.arpa` is a public suffix and Apple's TLS stack rejects it. After adding or renaming a `Host(...)` rule, run `./scripts/generate-homelab-certificates.sh` and then `make playbook PLAYBOOK=playbooks/traefik/configure-app.yml`.

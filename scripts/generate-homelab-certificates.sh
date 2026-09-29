@@ -49,8 +49,12 @@ else
 fi
 
 #
-# Traefik wildcard certificate
+# Traefik certificate
 #
+# home.arpa is on the Public Suffix List, so Apple's TLS stack rejects a
+# *.home.arpa wildcard. Every host exposed by Traefik is listed explicitly.
+
+HOSTS=$(grep -ho 'Host(`[^.]*' roles/traefik/templates/*.j2 | cut -d'`' -f2 | sort -u)
 
 echo "==> Generating Traefik private key"
 
@@ -66,7 +70,7 @@ openssl req \
     -new \
     -key "${TLS_KEY}" \
     -out "${TLS_CSR}" \
-    -subj "/CN=*.${DOMAIN}"
+    -subj "/CN=${DOMAIN}"
 
 echo "==> Creating certificate extensions"
 
@@ -78,9 +82,14 @@ extendedKeyUsage=serverAuth
 subjectAltName=@alt_names
 
 [alt_names]
-DNS.1=*.${DOMAIN}
-DNS.2=${DOMAIN}
+DNS.1=${DOMAIN}
 EOF
+
+index=2
+for host in ${HOSTS}; do
+    echo "DNS.${index}=${host}.${DOMAIN}" >> "${TLS_EXT}"
+    index=$((index + 1))
+done
 
 echo "==> Signing certificate with Homelab Root CA"
 

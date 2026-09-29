@@ -28,7 +28,7 @@ This creates (under `certs/homelab/`, which is git-ignored):
 |------|---------|---------------|
 | `ca/homelab-root-ca.crt` | Root CA public certificate (10 years) | Installed on every client device |
 | `ca/homelab-root-ca.key` | Root CA private key | **Never leaves this machine** |
-| `traefik/home.arpa.crt` / `.key` | Wildcard `*.home.arpa` certificate (825 days) | Deployed to Traefik |
+| `traefik/home.arpa.crt` / `.key` | Certificate with one SAN per Traefik host (825 days) — no `*.home.arpa` wildcard, since `home.arpa` is a public suffix and Apple rejects it; re-run the script after adding a service | Deployed to Traefik |
 
 The Root CA is only created if it doesn't exist yet, so re-running the script just renews the Traefik certificate — devices don't need to reinstall anything. Override the domain with `HOMELAB_DOMAIN=...` if needed.
 
@@ -72,5 +72,7 @@ Browsers accept user-installed CAs, but some Android apps deliberately ignore th
 ## DNS: trust is not enough
 
 The certificate only solves HTTPS trust — the device must also use Pi-hole as its DNS to resolve `*.home.arpa`. On the home Wi-Fi this happens automatically, since Pi-hole is the DHCP server.
+
+On Android, **Private DNS** (Settings → Connections → More connection settings → Private DNS) must be **Off**. When it points to a provider such as `dns.adguard.com` or `dns.google`, Android sends every lookup there over DNS-over-TLS, bypassing Pi-hole, and apps report "Could not find host" for `*.home.arpa`.
 
 Outside the home network (4G/5G, other Wi-Fi) `*.home.arpa` does **not** resolve, and that is intentional: these services are internal only. For remote access, the plan is a VPN (WireGuard/Tailscale) that pushes Pi-hole as DNS, instead of exposing Traefik to the Internet.

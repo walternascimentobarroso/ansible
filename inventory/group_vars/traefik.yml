@@ -1,0 +1,2 @@
+---
+traefik_ip: "{{ lookup('env', 'TRAEFIK_IP') }}"

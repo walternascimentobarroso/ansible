@@ -9,3 +9,6 @@ pihole_dhcp_end: "{{ lookup('env', 'PIHOLE_DHCP_END') }}"
 pihole_dhcp_router: "{{ lookup('env', 'PIHOLE_DHCP_ROUTER') }}"
 pihole_dhcp_netmask: "{{ lookup('env', 'PIHOLE_DHCP_NETMASK') }}"
 pihole_dhcp_lease_time: "{{ lookup('env', 'PIHOLE_DHCP_LEASE_TIME') }}"
+
+homelab_domain: "{{ lookup('env', 'HOMELAB_DOMAIN') }}"
+traefik_ip: "{{ lookup('env', 'TRAEFIK_IP') }}"

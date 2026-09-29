@@ -1,0 +1,19 @@
+---
+- name: Create Traefik LXC
+  hosts: proxmox
+  gather_facts: false
+
+  vars:
+    lxc_vmid: "{{ traefik_vmid }}"
+    lxc_hostname: "{{ traefik_hostname }}"
+    lxc_cores: "{{ traefik_cores }}"
+    lxc_memory: "{{ traefik_memory }}"
+    lxc_swap: "{{ traefik_swap }}"
+    lxc_disk: "{{ traefik_disk }}"
+    lxc_ip: "{{ traefik_ip }}"
+    lxc_cidr: "{{ traefik_cidr }}"
+    lxc_gateway: "{{ traefik_gateway }}"
+    lxc_features: "nesting=1"
+
+  roles:
+    - proxmox_lxc

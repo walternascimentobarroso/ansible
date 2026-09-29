@@ -88,6 +88,26 @@
   changed_when: false
   no_log: true
 
+- name: Enable custom dnsmasq configuration directory
+  ansible.builtin.command:
+    cmd: "pihole-FTL --config misc.etc_dnsmasq_d true"
+  changed_when: false
+
+- name: Deploy homelab DNS configuration
+  ansible.builtin.template:
+    src: homelab.conf.j2
+    dest: /etc/dnsmasq.d/99-homelab.conf
+    owner: root
+    group: root
+    mode: "0644"
+  register: homelab_dns_config
+
+- name: Restart Pi-hole FTL after DNS configuration change
+  ansible.builtin.service:
+    name: pihole-FTL
+    state: restarted
+  when: homelab_dns_config.changed
+
 - name: Verify Pi-hole answers local DNS queries
   ansible.builtin.command:
     cmd: "dig +short +time=2 +tries=1 @127.0.0.1 example.com"

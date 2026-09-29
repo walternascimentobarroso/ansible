@@ -1,0 +1,10 @@
+---
+- name: Bootstrap Traefik LXC
+  hosts: proxmox
+  gather_facts: false
+
+  vars:
+    lxc_vmid: "{{ traefik_vmid }}"
+
+  roles:
+    - lxc_bootstrap

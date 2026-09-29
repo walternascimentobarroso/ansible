@@ -1,0 +1,30 @@
+---
+- name: Create Traefik directory
+  ansible.builtin.file:
+    path: /opt/traefik
+    state: directory
+    mode: "0755"
+
+- name: Create Traefik dynamic configuration directory
+  ansible.builtin.file:
+    path: /opt/traefik/dynamic
+    state: directory
+    mode: "0755"
+
+- name: Deploy Traefik configuration
+  ansible.builtin.template:
+    src: traefik.yml.j2
+    dest: /opt/traefik/traefik.yml
+    mode: "0644"
+
+- name: Deploy Traefik Docker Compose
+  ansible.builtin.template:
+    src: compose.yml.j2
+    dest: /opt/traefik/compose.yml
+    mode: "0644"
+
+- name: Start Traefik
+  ansible.builtin.command:
+    cmd: docker compose -f /opt/traefik/compose.yml up -d
+  register: traefik_compose
+  changed_when: "'Started' in traefik_compose.stdout or 'Created' in traefik_compose.stdout"

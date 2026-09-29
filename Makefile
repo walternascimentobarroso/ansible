@@ -14,6 +14,7 @@ else
 endif
 
 SERVICE := ansible
+HOMELAB_DOMAIN := home.arpa
 
 .DEFAULT_GOAL := help
 
@@ -52,6 +53,12 @@ logs: ## Follow the ansible container logs
 .PHONY: bash
 bash: ## Open a shell inside the ansible container
 	$(DOCKER_COMPOSE) exec $(SERVICE) bash
+
+.PHONY: hosts
+hosts: ## List every service exposed by Traefik with its URL
+	@printf "${BGREEN}%-12s %s${NOCOLOR}\n" SERVICE URL
+	@grep -ho 'Host(`[^.]*' roles/traefik/templates/*.j2 | cut -d'`' -f2 | sort -u \
+		| xargs -I{} printf "%-12s ${CYAN}https://{}.$(HOMELAB_DOMAIN)/${NOCOLOR}\n" {}
 
 ## Ansible commands:
 

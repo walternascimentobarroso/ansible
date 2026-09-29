@@ -50,6 +50,14 @@
     group: root
     mode: "0644"
 
+- name: Deploy Pi-hole Traefik configuration
+  ansible.builtin.template:
+    src: pihole.yml.j2
+    dest: /opt/traefik/dynamic/pihole.yml
+    owner: root
+    group: root
+    mode: "0644"
+
 - name: Deploy Traefik Docker Compose
   ansible.builtin.template:
     src: compose.yml.j2

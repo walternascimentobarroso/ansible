@@ -17,6 +17,39 @@
     dest: /opt/traefik/traefik.yml
     mode: "0644"
 
+- name: Create Traefik certificates directory
+  ansible.builtin.file:
+    path: /opt/traefik/certs
+    state: directory
+    owner: root
+    group: root
+    mode: "0700"
+
+- name: Copy Traefik TLS certificate
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/../../certs/homelab/traefik/home.arpa.crt"
+    dest: /opt/traefik/certs/home.arpa.crt
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Copy Traefik TLS private key
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/../../certs/homelab/traefik/home.arpa.key"
+    dest: /opt/traefik/certs/home.arpa.key
+    owner: root
+    group: root
+    mode: "0600"
+  no_log: true
+
+- name: Deploy Traefik TLS configuration
+  ansible.builtin.template:
+    src: tls.yml.j2
+    dest: /opt/traefik/dynamic/tls.yml
+    owner: root
+    group: root
+    mode: "0644"
+
 - name: Deploy Traefik Docker Compose
   ansible.builtin.template:
     src: compose.yml.j2

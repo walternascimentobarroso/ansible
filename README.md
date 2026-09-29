@@ -2,6 +2,8 @@
 
 Ansible automation for the homelab, running inside a Docker container (no need to install Ansible on the host). The `proxmox` playbooks provision the hypervisor, and the `nextcloud` playbooks create and configure an LXC running Nextcloud.
 
+Internal services live under `*.home.arpa` (RFC 8375) behind Traefik with a self-signed Root CA — see [docs/certificates.md](docs/certificates.md) to generate it and install it on each device.
+
 ## Prerequisites
 
 - Docker and Docker Compose installed on the host.

@@ -5,13 +5,13 @@
   register: nextcloud_trusted_domains_current
   changed_when: false
 
-- name: Configure Nextcloud trusted domain
+- name: Configure Nextcloud homelab trusted domain
   ansible.builtin.command:
     cmd: >
       docker exec -u www-data nextcloud
-      php occ config:system:set trusted_domains 1
-      --value={{ ansible_host }}
-  when: ansible_host not in nextcloud_trusted_domains_current.stdout_lines
+      php occ config:system:set trusted_domains 2
+      --value=nextcloud.{{ homelab_domain }}
+  when: "'nextcloud.' ~ homelab_domain not in nextcloud_trusted_domains_current.stdout_lines"
 
 - name: Read Nextcloud overwrite protocol
   ansible.builtin.command:
@@ -35,13 +35,13 @@
   changed_when: false
   failed_when: false
 
-- name: Configure Nextcloud trusted proxy
+- name: Configure Traefik as Nextcloud trusted proxy
   ansible.builtin.command:
     cmd: >
       docker exec -u www-data nextcloud
       php occ config:system:set trusted_proxies 0
-      --value=172.16.0.0/12
-  when: "'172.16.0.0/12' not in nextcloud_trusted_proxies_current.stdout_lines"
+      --value={{ traefik_ip }}
+  when: traefik_ip not in nextcloud_trusted_proxies_current.stdout_lines
 
 - name: Read Nextcloud skeleton directory
   ansible.builtin.command:

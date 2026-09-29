@@ -47,14 +47,3 @@
   loop:
     - Documents
     - Photos
-
-- name: Create Caddy persistent directories
-  ansible.builtin.file:
-    path: "/opt/nextcloud/{{ item }}"
-    state: directory
-    owner: root
-    group: root
-    mode: "0755"
-  loop:
-    - caddy-data
-    - caddy-config

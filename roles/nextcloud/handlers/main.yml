@@ -1,5 +1,0 @@
----
-- name: Restart Caddy
-  ansible.builtin.command:
-    cmd: docker restart nextcloud-caddy
-  changed_when: true

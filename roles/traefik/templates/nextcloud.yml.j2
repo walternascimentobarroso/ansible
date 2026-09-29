@@ -1,0 +1,14 @@
+http:
+  routers:
+    nextcloud:
+      rule: "Host(`nextcloud.{{ homelab_domain }}`)"
+      entryPoints:
+        - websecure
+      service: nextcloud
+      tls: {}
+
+  services:
+    nextcloud:
+      loadBalancer:
+        servers:
+          - url: "http://{{ nextcloud_ip }}"

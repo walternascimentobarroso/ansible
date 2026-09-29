@@ -8,18 +8,9 @@
     mode: "0600"
   no_log: true
 
-- name: Create Caddyfile
-  ansible.builtin.template:
-    src: Caddyfile.j2
-    dest: /opt/nextcloud/Caddyfile
-    owner: root
-    group: root
-    mode: "0644"
-  notify: Restart Caddy
-
 - name: Ensure Nextcloud Docker Compose stack is running
   ansible.builtin.command:
-    cmd: docker compose -f /opt/nextcloud/compose.yml up -d
+    cmd: docker compose -f /opt/nextcloud/compose.yml up -d --remove-orphans
   changed_when: false
 
 - name: Wait for Nextcloud installation to complete
@@ -32,3 +23,4 @@
     - nextcloud_status.rc == 0
     - (nextcloud_status.stdout | from_json).installed | bool
   changed_when: false
+  check_mode: false

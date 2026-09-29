@@ -7,3 +7,6 @@ nextcloud_db_password: "{{ lookup('env', 'NEXTCLOUD_DB_PASSWORD') }}"
 nextcloud_admin_user: "{{ lookup('env', 'NEXTCLOUD_ADMIN_USER') }}"
 nextcloud_admin_password: "{{ lookup('env', 'NEXTCLOUD_ADMIN_PASSWORD') }}"
 nextcloud_trusted_domains: "{{ lookup('env', 'NEXTCLOUD_IP') }}"
+
+homelab_domain: "{{ lookup('env', 'HOMELAB_DOMAIN') }}"
+traefik_ip: "{{ lookup('env', 'TRAEFIK_IP') }}"

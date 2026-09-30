@@ -10,3 +10,6 @@
 
 - name: Deploy AI
   ansible.builtin.import_playbook: playbooks/ai/deploy.yml
+
+- name: Deploy sandbox
+  ansible.builtin.import_playbook: playbooks/sandbox/deploy.yml

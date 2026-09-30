@@ -1,0 +1,14 @@
+http:
+  routers:
+    resume-matcher:
+      rule: "Host(`resume.{{ homelab_domain }}`)"
+      entryPoints:
+        - websecure
+      service: resume-matcher
+      tls: {}
+
+  services:
+    resume-matcher:
+      loadBalancer:
+        servers:
+          - url: "http://{{ hostvars[groups['sandbox'][0]].ansible_host }}:3000"

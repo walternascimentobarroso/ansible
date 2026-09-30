@@ -1,0 +1,12 @@
+---
+ansible_host: "{{ lxc.ip }}"
+
+lxc:
+  vmid: 105
+  hostname: sandbox
+  cores: 2
+  memory: 3072
+  swap: 1024
+  disk: 20
+  ip: 192.168.1.6
+  features: nesting=1

@@ -4,6 +4,9 @@ services:
     container_name: ollama
     restart: unless-stopped
 
+    ports:
+      - "11434:11434"
+
     volumes:
       - {{ lxc.data_mount }}/ollama:/root/.ollama
 

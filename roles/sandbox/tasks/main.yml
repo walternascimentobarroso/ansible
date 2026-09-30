@@ -1,0 +1,27 @@
+---
+- name: Create app data directories
+  ansible.builtin.file:
+    path: "/opt/apps/{{ item.name }}/data"
+    state: directory
+    mode: "0755"
+  loop: "{{ sandbox_apps }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+- name: Deploy app Docker Compose
+  ansible.builtin.template:
+    src: "apps/{{ item.name }}.yml.j2"
+    dest: "/opt/apps/{{ item.name }}/compose.yml"
+    owner: root
+    group: root
+    mode: "0600"
+  loop: "{{ sandbox_apps }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+- name: Start app stacks
+  community.docker.docker_compose_v2:
+    project_src: "/opt/apps/{{ item.name }}"
+  loop: "{{ sandbox_apps }}"
+  loop_control:
+    label: "{{ item.name }}"

@@ -8,3 +8,26 @@
 
   roles:
     - lxc_bootstrap
+
+  post_tasks:
+    - name: Wait for SSH on {{ lxc.ip }}
+      ansible.builtin.wait_for:
+        host: "{{ lxc.ip }}"
+        port: 22
+        timeout: 60
+      delegate_to: localhost
+
+    - name: Scan SSH host key of {{ lxc.ip }}
+      ansible.builtin.command:
+        cmd: "ssh-keyscan -t ed25519 {{ lxc.ip }}"
+      register: lxc_host_key
+      changed_when: false
+      delegate_to: localhost
+
+    - name: Trust SSH host key of {{ lxc.ip }}
+      ansible.builtin.known_hosts:
+        path: /root/.ansible_known_hosts
+        name: "{{ lxc.ip }}"
+        key: "{{ lxc_host_key.stdout }}"
+        hash_host: true
+      delegate_to: localhost

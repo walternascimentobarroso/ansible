@@ -3,6 +3,8 @@
   ansible.builtin.file:
     path: "/opt/apps/{{ item.name }}/data"
     state: directory
+    owner: "{{ item.uid | default(omit) }}"
+    group: "{{ item.uid | default(omit) }}"
     mode: "0755"
   loop: "{{ sandbox_apps }}"
   loop_control:

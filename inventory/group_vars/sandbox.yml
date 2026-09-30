@@ -1,6 +1,7 @@
 ---
 sandbox_apps:
   - name: resume-matcher
+    uid: 1000
 
 sandbox_ollama_url: "http://{{ hostvars[groups['ai'][0]].ansible_host }}:11434"
 sandbox_ollama_model: qwen3:1.7b

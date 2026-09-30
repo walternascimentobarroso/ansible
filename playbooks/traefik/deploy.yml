@@ -2,12 +2,12 @@
 - name: Create LXC
   ansible.builtin.import_playbook: ../lxc/create.yml
   vars:
-    service: pihole
+    service: traefik
 
 - name: Bootstrap LXC
   ansible.builtin.import_playbook: ../lxc/bootstrap.yml
   vars:
-    service: pihole
+    service: traefik
 
 - name: Configure app
   ansible.builtin.import_playbook: configure-app.yml

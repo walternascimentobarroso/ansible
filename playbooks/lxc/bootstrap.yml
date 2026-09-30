@@ -1,10 +1,10 @@
 ---
-- name: Bootstrap AI LXC
+- name: Bootstrap service LXC
   hosts: proxmox
   gather_facts: false
 
   vars:
-    lxc_vmid: "{{ ai_vmid }}"
+    lxc: "{{ hostvars[groups[service][0]].lxc }}"
 
   roles:
     - lxc_bootstrap

@@ -5,7 +5,7 @@ services:
     restart: unless-stopped
 
     volumes:
-      - /data/ollama:/root/.ollama
+      - {{ lxc.data_mount }}/ollama:/root/.ollama
 
   open-webui:
     image: ghcr.io/open-webui/open-webui:main
@@ -22,4 +22,4 @@ services:
       OLLAMA_BASE_URL: http://ollama:11434
 
     volumes:
-      - /data/open-webui:/app/backend/data
+      - {{ lxc.data_mount }}/open-webui:/app/backend/data

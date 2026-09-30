@@ -11,4 +11,4 @@ http:
     pihole:
       loadBalancer:
         servers:
-          - url: "http://{{ pihole_ip }}"
+          - url: "http://{{ hostvars[groups['pihole'][0]].ansible_host }}"

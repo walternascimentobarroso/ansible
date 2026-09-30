@@ -54,7 +54,7 @@ fi
 # home.arpa is on the Public Suffix List, so Apple's TLS stack rejects a
 # *.home.arpa wildcard. Every host exposed by Traefik is listed explicitly.
 
-HOSTS=$(grep -ho 'Host(`[^.]*' roles/traefik/templates/*.j2 | cut -d'`' -f2 | sort -u)
+HOSTS=$(grep -rho 'Host(`[^.]*' roles/traefik/templates | cut -d'`' -f2 | sort -u)
 
 echo "==> Generating Traefik private key"
 

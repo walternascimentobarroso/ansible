@@ -11,6 +11,7 @@ Every service follows the pattern `<service>.home.arpa`:
 ```text
 https://traefik.home.arpa
 https://nextcloud.home.arpa
+https://ai.home.arpa
 https://pihole.home.arpa
 ```
 
@@ -19,7 +20,7 @@ Name resolution is done by Pi-hole: `*.home.arpa → 192.168.1.4` (Traefik).
 ## Generating the certificates
 
 ```bash
-./scripts/generate-homelab-certificates.sh
+make certs            # or: make traefik-reload (certs + redeploy Traefik)
 ```
 
 This creates (under `certs/homelab/`, which is git-ignored):
@@ -28,9 +29,9 @@ This creates (under `certs/homelab/`, which is git-ignored):
 |------|---------|---------------|
 | `ca/homelab-root-ca.crt` | Root CA public certificate (10 years) | Installed on every client device |
 | `ca/homelab-root-ca.key` | Root CA private key | **Never leaves this machine** |
-| `traefik/home.arpa.crt` / `.key` | Certificate with one SAN per Traefik host (825 days) — no `*.home.arpa` wildcard, since `home.arpa` is a public suffix and Apple rejects it; re-run the script after adding a service | Deployed to Traefik |
+| `traefik/home.arpa.crt` / `.key` | Certificate with one SAN per Traefik host (825 days) — no `*.home.arpa` wildcard, since `home.arpa` is a public suffix and Apple rejects it; run `make traefik-reload` after adding a service | Deployed to Traefik |
 
-The Root CA is only created if it doesn't exist yet, so re-running the script just renews the Traefik certificate — devices don't need to reinstall anything. Override the domain with `HOMELAB_DOMAIN=...` if needed.
+The Root CA is only created if it doesn't exist yet, so re-running the script just renews the Traefik certificate — devices don't need to reinstall anything. The domain comes from `HOMELAB_DOMAIN` in `.env`.
 
 > Only ever share `homelab-root-ca.crt`. Anyone holding `homelab-root-ca.key` can issue certificates your devices will trust.
 

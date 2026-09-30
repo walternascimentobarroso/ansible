@@ -14,7 +14,7 @@ else
 endif
 
 SERVICE := ansible
-HOMELAB_DOMAIN := home.arpa
+HOMELAB_DOMAIN := $(or $(shell sed -n 's/^HOMELAB_DOMAIN=//p' .env 2>/dev/null),home.arpa)
 
 .DEFAULT_GOAL := help
 
@@ -57,7 +57,7 @@ bash: ## Open a shell inside the ansible container
 .PHONY: hosts
 hosts: ## List every service exposed by Traefik with its URL
 	@printf "${BGREEN}%-12s %s${NOCOLOR}\n" SERVICE URL
-	@grep -ho 'Host(`[^.]*' roles/traefik/templates/*.j2 | cut -d'`' -f2 | sort -u \
+	@grep -rho 'Host(`[^.]*' roles/traefik/templates | cut -d'`' -f2 | sort -u \
 		| xargs -I{} printf "%-12s ${CYAN}https://{}.$(HOMELAB_DOMAIN)/${NOCOLOR}\n" {}
 
 ## Ansible commands:
@@ -67,8 +67,16 @@ ping: ## Ping all hosts in the inventory
 	$(DOCKER_COMPOSE) exec $(SERVICE) ansible all -m ping
 
 .PHONY: playbook
-playbook: ## Run a playbook, e.g. make playbook PLAYBOOK=site.yml
-	$(DOCKER_COMPOSE) exec $(SERVICE) ansible-playbook $(PLAYBOOK)
+playbook: ## Run a playbook, e.g. make playbook PLAYBOOK=playbooks/lxc/create.yml NAME=ai
+	$(DOCKER_COMPOSE) exec $(SERVICE) ansible-playbook $(PLAYBOOK) $(if $(NAME),-e service=$(NAME))
+
+.PHONY: deploy
+deploy: ## Create, bootstrap and configure a service, e.g. make deploy NAME=ai
+	$(DOCKER_COMPOSE) exec $(SERVICE) ansible-playbook playbooks/$(NAME)/deploy.yml
+
+.PHONY: site
+site: ## Deploy every service (site.yml)
+	$(DOCKER_COMPOSE) exec $(SERVICE) ansible-playbook site.yml
 
 .PHONY: syntax-check
 syntax-check: ## Check syntax of a playbook, e.g. make syntax-check PLAYBOOK=site.yml
@@ -80,3 +88,21 @@ syntax-check-all: ## Check syntax of every playbook under playbooks/
 		echo "${CYAN}==> $$playbook${NOCOLOR}"; \
 		$(DOCKER_COMPOSE) exec -T $(SERVICE) ansible-playbook "$$playbook" --syntax-check || exit 1; \
 	done
+
+.PHONY: lint
+lint: ## Run ansible-lint on the whole project
+	$(DOCKER_COMPOSE) exec $(SERVICE) ansible-lint
+
+## Homelab commands:
+
+.PHONY: certs
+certs: ## Generate the Root CA (once) and renew the Traefik certificate
+	HOMELAB_DOMAIN=$(HOMELAB_DOMAIN) ./scripts/generate-homelab-certificates.sh
+
+.PHONY: traefik-reload
+traefik-reload: certs ## Regenerate the certificate and redeploy Traefik routes
+	$(DOCKER_COMPOSE) exec $(SERVICE) ansible-playbook playbooks/traefik/configure-app.yml
+
+.PHONY: new-service
+new-service: ## Scaffold a new service, e.g. make new-service NAME=foo VMID=105 IP=192.168.1.6 PORT=8080
+	./scripts/new-service.sh $(NAME) $(VMID) $(IP) $(PORT)

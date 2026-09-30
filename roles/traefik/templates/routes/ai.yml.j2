@@ -11,4 +11,4 @@ http:
     ai:
       loadBalancer:
         servers:
-          - url: "http://{{ ai_ip }}:8080"
+          - url: "http://{{ hostvars[groups['ai'][0]].ansible_host }}:8080"

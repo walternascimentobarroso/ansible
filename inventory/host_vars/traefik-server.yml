@@ -1,0 +1,12 @@
+---
+ansible_host: "{{ lxc.ip }}"
+
+lxc:
+  vmid: 103
+  hostname: traefik
+  cores: 1
+  memory: 512
+  swap: 512
+  disk: 8
+  ip: 192.168.1.4
+  features: nesting=1

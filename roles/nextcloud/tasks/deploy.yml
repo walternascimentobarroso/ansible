@@ -9,9 +9,9 @@
   no_log: true
 
 - name: Ensure Nextcloud Docker Compose stack is running
-  ansible.builtin.command:
-    cmd: docker compose -f /opt/nextcloud/compose.yml up -d --remove-orphans
-  changed_when: false
+  community.docker.docker_compose_v2:
+    project_src: /opt/nextcloud
+    remove_orphans: true
 
 - name: Wait for Nextcloud installation to complete
   ansible.builtin.command:

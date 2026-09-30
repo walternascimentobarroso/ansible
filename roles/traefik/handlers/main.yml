@@ -1,5 +1,7 @@
 ---
 - name: Restart Traefik
-  ansible.builtin.command:
-    cmd: docker compose -f /opt/traefik/compose.yml restart traefik
-  changed_when: true
+  community.docker.docker_compose_v2:
+    project_src: /opt/traefik
+    services:
+      - traefik
+    state: restarted

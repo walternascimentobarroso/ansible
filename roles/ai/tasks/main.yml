@@ -5,8 +5,8 @@
     state: directory
     mode: "0755"
   loop:
-    - /data/ollama
-    - /data/open-webui
+    - "{{ lxc.data_mount }}/ollama"
+    - "{{ lxc.data_mount }}/open-webui"
     - /opt/ai
 
 - name: Deploy AI Docker Compose
@@ -18,9 +18,5 @@
     mode: "0600"
 
 - name: Start AI stack
-  ansible.builtin.command:
-    cmd: docker compose -f /opt/ai/compose.yml up -d
-  register: ai_compose_up
-  changed_when: >-
-    'Started' in ai_compose_up.stderr or
-    'Created' in ai_compose_up.stderr
+  community.docker.docker_compose_v2:
+    project_src: /opt/ai

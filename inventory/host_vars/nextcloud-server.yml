@@ -1,0 +1,14 @@
+---
+ansible_host: "{{ lxc.ip }}"
+
+lxc:
+  vmid: 101
+  hostname: nextcloud
+  cores: 2
+  memory: 4096
+  swap: 512
+  disk: 32
+  data_size: 200
+  data_mount: /data
+  ip: 192.168.1.102
+  features: nesting=1

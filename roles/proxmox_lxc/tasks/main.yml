@@ -1,7 +1,7 @@
 ---
-- name: Check if LXC {{ lxc_vmid }} exists
+- name: Check if LXC {{ lxc.vmid }} exists
   ansible.builtin.uri:
-    url: "{{ proxmox_api_url }}/nodes/{{ proxmox_node }}/lxc/{{ lxc_vmid }}/config"
+    url: "{{ proxmox_api_url }}/nodes/{{ proxmox_node }}/lxc/{{ lxc.vmid }}/config"
     method: GET
     headers:
       Authorization: "{{ proxmox_api_auth }}"
@@ -16,42 +16,36 @@
 - name: Build LXC creation parameters
   ansible.builtin.set_fact:
     lxc_create_body:
-      vmid: "{{ lxc_vmid }}"
-      hostname: "{{ lxc_hostname }}"
+      vmid: "{{ lxc.vmid }}"
+      hostname: "{{ lxc.hostname }}"
       ostemplate: "{{ proxmox_template_storage }}:vztmpl/{{ proxmox_template }}"
       storage: "{{ proxmox_lxc_storage }}"
-      rootfs: "{{ proxmox_lxc_storage }}:{{ lxc_disk }}"
-      cores: "{{ lxc_cores }}"
-      memory: "{{ lxc_memory }}"
-      swap: "{{ lxc_swap }}"
+      rootfs: "{{ proxmox_lxc_storage }}:{{ lxc.disk }}"
+      cores: "{{ lxc.cores }}"
+      memory: "{{ lxc.memory }}"
+      swap: "{{ lxc.swap }}"
       net0: >-
-        name=eth0,bridge={{ proxmox_bridge }},{{
-          (lxc_ip | length > 0) | ternary(
-            'ip=' ~ lxc_ip ~ '/' ~ lxc_cidr ~ ',gw=' ~ lxc_gateway,
-            'ip=dhcp'
-          )
-        }}
+        name=eth0,bridge={{ proxmox_bridge }},ip={{ lxc.ip }}/{{ lxc.cidr | default(proxmox_lxc_cidr) }},gw={{ lxc.gateway | default(proxmox_lxc_gateway) }}
       unprivileged: 1
       start: 1
 
 - name: Add features to LXC creation parameters
   ansible.builtin.set_fact:
-    lxc_create_body: "{{ lxc_create_body | combine({'features': lxc_features}) }}"
-  when: lxc_features | length > 0
+    lxc_create_body: "{{ lxc_create_body | combine({'features': lxc.features}) }}"
+  when: lxc.features is defined
 
 - name: Add data volume to LXC creation parameters
   ansible.builtin.set_fact:
     lxc_create_body: >-
       {{
         lxc_create_body | combine({
-          'mp0': proxmox_lxc_storage ~ ':' ~ lxc_data_size ~ ',mp=' ~ lxc_data_mount
+          'mp0': proxmox_lxc_storage ~ ':' ~ lxc.data_size ~ ',mp=' ~ lxc.data_mount
         })
       }}
   when:
-    - lxc_data_size | length > 0
-    - lxc_data_mount | length > 0
+    - lxc.data_size is defined
 
-- name: Create LXC {{ lxc_vmid }}
+- name: Create LXC {{ lxc.vmid }}
   ansible.builtin.uri:
     url: "{{ proxmox_api_url }}/nodes/{{ proxmox_node }}/lxc"
     method: POST
@@ -65,18 +59,17 @@
   when: proxmox_lxc_lookup.status != 200
   no_log: true
 
-- name: Get LXC {{ lxc_vmid }} configuration
+- name: Get LXC {{ lxc.vmid }} configuration
   ansible.builtin.command:
-    cmd: "pct config {{ lxc_vmid }}"
+    cmd: "pct config {{ lxc.vmid }}"
   register: proxmox_lxc_config
   changed_when: false
 
-- name: Add LXC {{ lxc_vmid }} data volume
+- name: Add LXC {{ lxc.vmid }} data volume
   ansible.builtin.command:
     cmd: >
-      pct set {{ lxc_vmid }}
-      -mp0 {{ proxmox_lxc_storage }}:{{ lxc_data_size }},mp={{ lxc_data_mount }}
+      pct set {{ lxc.vmid }}
+      -mp0 {{ proxmox_lxc_storage }}:{{ lxc.data_size }},mp={{ lxc.data_mount }}
   when:
-    - lxc_data_size | length > 0
-    - lxc_data_mount | length > 0
+    - lxc.data_size is defined
     - "'mp0:' not in proxmox_lxc_config.stdout"

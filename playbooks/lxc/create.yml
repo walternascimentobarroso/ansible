@@ -1,0 +1,10 @@
+---
+- name: Create service LXC
+  hosts: proxmox
+  gather_facts: false
+
+  vars:
+    lxc: "{{ hostvars[groups[service][0]].lxc }}"
+
+  roles:
+    - proxmox_lxc

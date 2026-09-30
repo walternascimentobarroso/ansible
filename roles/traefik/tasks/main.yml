@@ -27,8 +27,8 @@
 
 - name: Copy Traefik TLS certificate
   ansible.builtin.copy:
-    src: "{{ playbook_dir }}/../../certs/homelab/traefik/home.arpa.crt"
-    dest: /opt/traefik/certs/home.arpa.crt
+    src: "{{ inventory_dir }}/../certs/homelab/traefik/{{ homelab_domain }}.crt"
+    dest: /opt/traefik/certs/{{ homelab_domain }}.crt
     owner: root
     group: root
     mode: "0644"
@@ -36,8 +36,8 @@
 
 - name: Copy Traefik TLS private key
   ansible.builtin.copy:
-    src: "{{ playbook_dir }}/../../certs/homelab/traefik/home.arpa.key"
-    dest: /opt/traefik/certs/home.arpa.key
+    src: "{{ inventory_dir }}/../certs/homelab/traefik/{{ homelab_domain }}.key"
+    dest: /opt/traefik/certs/{{ homelab_domain }}.key
     owner: root
     group: root
     mode: "0600"
@@ -52,29 +52,14 @@
     group: root
     mode: "0644"
 
-- name: Deploy Pi-hole Traefik configuration
+- name: Deploy Traefik routes
   ansible.builtin.template:
-    src: pihole.yml.j2
-    dest: /opt/traefik/dynamic/pihole.yml
+    src: "{{ item }}"
+    dest: "/opt/traefik/dynamic/{{ item | basename | regex_replace('\\.j2$', '') }}"
     owner: root
     group: root
     mode: "0644"
-
-- name: Deploy Nextcloud Traefik configuration
-  ansible.builtin.template:
-    src: nextcloud.yml.j2
-    dest: /opt/traefik/dynamic/nextcloud.yml
-    owner: root
-    group: root
-    mode: "0644"
-
-- name: Deploy AI Traefik configuration
-  ansible.builtin.template:
-    src: ai.yml.j2
-    dest: /opt/traefik/dynamic/ai.yml
-    owner: root
-    group: root
-    mode: "0644"
+  with_fileglob: "{{ role_path }}/templates/routes/*.j2"
 
 - name: Deploy Traefik Docker Compose
   ansible.builtin.template:
@@ -83,7 +68,5 @@
     mode: "0644"
 
 - name: Start Traefik
-  ansible.builtin.command:
-    cmd: docker compose -f /opt/traefik/compose.yml up -d
-  register: traefik_compose
-  changed_when: "'Started' in traefik_compose.stdout or 'Created' in traefik_compose.stdout"
+  community.docker.docker_compose_v2:
+    project_src: /opt/traefik

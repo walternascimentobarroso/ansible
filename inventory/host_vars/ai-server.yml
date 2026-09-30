@@ -1,0 +1,14 @@
+---
+ansible_host: "{{ lxc.ip }}"
+
+lxc:
+  vmid: 104
+  hostname: ai-server
+  cores: 4
+  memory: 8192
+  swap: 2048
+  disk: 20
+  data_size: 50
+  data_mount: /data
+  ip: 192.168.1.5
+  features: nesting=1

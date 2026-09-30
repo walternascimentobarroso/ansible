@@ -1,0 +1,12 @@
+---
+- name: Deploy Pi-hole
+  ansible.builtin.import_playbook: playbooks/pihole/deploy.yml
+
+- name: Deploy Traefik
+  ansible.builtin.import_playbook: playbooks/traefik/deploy.yml
+
+- name: Deploy Nextcloud
+  ansible.builtin.import_playbook: playbooks/nextcloud/deploy.yml
+
+- name: Deploy AI
+  ansible.builtin.import_playbook: playbooks/ai/deploy.yml

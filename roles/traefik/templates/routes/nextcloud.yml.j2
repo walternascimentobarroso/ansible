@@ -11,4 +11,4 @@ http:
     nextcloud:
       loadBalancer:
         servers:
-          - url: "http://{{ nextcloud_ip }}"
+          - url: "http://{{ hostvars[groups['nextcloud'][0]].ansible_host }}"

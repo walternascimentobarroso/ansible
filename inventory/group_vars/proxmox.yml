@@ -16,51 +16,6 @@ proxmox_api_token_secret: "{{ lookup('env', 'PROXMOX_TOKEN_SECRET') }}"
 proxmox_api_url: "https://{{ proxmox_host }}:8006/api2/json"
 proxmox_api_auth: "PVEAPIToken={{ proxmox_api_user }}!{{ proxmox_api_token_id }}={{ proxmox_api_token_secret }}"
 
-# LXC specs (consumed by roles/proxmox_lxc and roles/lxc_bootstrap; play hosts are `proxmox`)
-# Nextcloud
-nextcloud_vmid: "{{ lookup('env', 'NEXTCLOUD_VMID') }}"
-nextcloud_hostname: "{{ lookup('env', 'NEXTCLOUD_HOSTNAME') }}"
-nextcloud_cores: "{{ lookup('env', 'NEXTCLOUD_CORES') }}"
-nextcloud_memory: "{{ lookup('env', 'NEXTCLOUD_MEMORY') }}"
-nextcloud_swap: "{{ lookup('env', 'NEXTCLOUD_SWAP') }}"
-nextcloud_disk: "{{ lookup('env', 'NEXTCLOUD_DISK') }}"
-nextcloud_data_size: "{{ lookup('env', 'NEXTCLOUD_DATA_SIZE') }}"
-nextcloud_data_mount: "{{ lookup('env', 'NEXTCLOUD_DATA_MOUNT') }}"
-nextcloud_ip: "{{ lookup('env', 'NEXTCLOUD_IP') }}"
-nextcloud_cidr: "{{ lookup('env', 'NEXTCLOUD_CIDR') }}"
-nextcloud_gateway: "{{ lookup('env', 'NEXTCLOUD_GATEWAY') }}"
-
-# Pi-hole
-pihole_vmid: "{{ lookup('env', 'PIHOLE_VMID') }}"
-pihole_hostname: "{{ lookup('env', 'PIHOLE_HOSTNAME') }}"
-pihole_cores: "{{ lookup('env', 'PIHOLE_CORES') }}"
-pihole_memory: "{{ lookup('env', 'PIHOLE_MEMORY') }}"
-pihole_swap: "{{ lookup('env', 'PIHOLE_SWAP') }}"
-pihole_disk: "{{ lookup('env', 'PIHOLE_DISK') }}"
-pihole_ip: "{{ lookup('env', 'PIHOLE_IP') }}"
-pihole_cidr: "{{ lookup('env', 'PIHOLE_CIDR') }}"
-pihole_gateway: "{{ lookup('env', 'PIHOLE_GATEWAY') }}"
-
-# Traefik
-traefik_vmid: "{{ lookup('env', 'TRAEFIK_VMID') }}"
-traefik_hostname: "{{ lookup('env', 'TRAEFIK_HOSTNAME') }}"
-traefik_cores: "{{ lookup('env', 'TRAEFIK_CORES') }}"
-traefik_memory: "{{ lookup('env', 'TRAEFIK_MEMORY') }}"
-traefik_swap: "{{ lookup('env', 'TRAEFIK_SWAP') }}"
-traefik_disk: "{{ lookup('env', 'TRAEFIK_DISK') }}"
-traefik_ip: "{{ lookup('env', 'TRAEFIK_IP') }}"
-traefik_cidr: "{{ lookup('env', 'TRAEFIK_CIDR') }}"
-traefik_gateway: "{{ lookup('env', 'TRAEFIK_GATEWAY') }}"
-
-# AI
-ai_vmid: "{{ lookup('env', 'AI_VMID') }}"
-ai_hostname: "{{ lookup('env', 'AI_HOSTNAME') }}"
-ai_cores: "{{ lookup('env', 'AI_CORES') }}"
-ai_memory: "{{ lookup('env', 'AI_MEMORY') }}"
-ai_swap: "{{ lookup('env', 'AI_SWAP') }}"
-ai_disk: "{{ lookup('env', 'AI_DISK') }}"
-ai_data_size: "{{ lookup('env', 'AI_DATA_SIZE') }}"
-ai_data_mount: "{{ lookup('env', 'AI_DATA_MOUNT') }}"
-ai_ip: "{{ lookup('env', 'AI_IP') }}"
-ai_cidr: "{{ lookup('env', 'AI_CIDR') }}"
-ai_gateway: "{{ lookup('env', 'AI_GATEWAY') }}"
+# Network shared by every LXC; per-LXC specs live in inventory/host_vars/<host>.yml
+proxmox_lxc_cidr: 24
+proxmox_lxc_gateway: 192.168.1.1

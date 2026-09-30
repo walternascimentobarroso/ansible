@@ -1,0 +1,21 @@
+---
+- name: Create AI LXC
+  hosts: proxmox
+  gather_facts: false
+
+  vars:
+    lxc_vmid: "{{ ai_vmid }}"
+    lxc_hostname: "{{ ai_hostname }}"
+    lxc_cores: "{{ ai_cores }}"
+    lxc_memory: "{{ ai_memory }}"
+    lxc_swap: "{{ ai_swap }}"
+    lxc_disk: "{{ ai_disk }}"
+    lxc_data_size: "{{ ai_data_size }}"
+    lxc_data_mount: "{{ ai_data_mount }}"
+    lxc_ip: "{{ ai_ip }}"
+    lxc_cidr: "{{ ai_cidr }}"
+    lxc_gateway: "{{ ai_gateway }}"
+    lxc_features: "nesting=1"
+
+  roles:
+    - proxmox_lxc

@@ -68,6 +68,14 @@
     group: root
     mode: "0644"
 
+- name: Deploy AI Traefik configuration
+  ansible.builtin.template:
+    src: ai.yml.j2
+    dest: /opt/traefik/dynamic/ai.yml
+    owner: root
+    group: root
+    mode: "0644"
+
 - name: Deploy Traefik Docker Compose
   ansible.builtin.template:
     src: compose.yml.j2

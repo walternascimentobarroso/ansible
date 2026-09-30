@@ -1,0 +1,8 @@
+---
+- name: Configure AI server
+  hosts: ai
+  become: true
+
+  roles:
+    - docker
+    - ai

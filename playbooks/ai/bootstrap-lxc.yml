@@ -1,0 +1,10 @@
+---
+- name: Bootstrap AI LXC
+  hosts: proxmox
+  gather_facts: false
+
+  vars:
+    lxc_vmid: "{{ ai_vmid }}"
+
+  roles:
+    - lxc_bootstrap

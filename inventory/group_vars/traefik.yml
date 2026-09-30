@@ -4,3 +4,4 @@ homelab_domain: "{{ lookup('env', 'HOMELAB_DOMAIN') }}"
 
 pihole_ip: "{{ lookup('env', 'PIHOLE_IP') }}"
 nextcloud_ip: "{{ lookup('env', 'NEXTCLOUD_IP') }}"
+ai_ip: "{{ lookup('env', 'AI_IP') }}"

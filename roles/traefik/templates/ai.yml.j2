@@ -1,0 +1,14 @@
+http:
+  routers:
+    ai:
+      rule: "Host(`ai.{{ homelab_domain }}`)"
+      entryPoints:
+        - websecure
+      service: ai
+      tls: {}
+
+  services:
+    ai:
+      loadBalancer:
+        servers:
+          - url: "http://{{ ai_ip }}:8080"

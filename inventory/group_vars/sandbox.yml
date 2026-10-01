@@ -3,5 +3,23 @@ sandbox_apps:
   - name: resume-matcher
     uid: 1000
 
-sandbox_ollama_url: "http://{{ hostvars[groups['ai'][0]].ansible_host }}:11434"
-sandbox_ollama_model: qwen3:1.7b
+sandbox_llm_provider: groq
+
+sandbox_llm_providers:
+  groq:
+    provider: groq
+    model: groq/qwen/qwen3.8-27b
+    api_base: https://api.groq.com/openai/v1
+    api_key: "{{ lookup('env', 'GROQ_API_KEY') }}"
+  gemini:
+    provider: gemini
+    model: gemini/gemini-3.5-flash-lite
+    api_base: https://generativelanguage.googleapis.com/v1beta
+    api_key: "{{ lookup('env', 'GEMINI_API_KEY') }}"
+  ollama:
+    provider: ollama
+    model: qwen3:1.7b
+    api_base: "http://{{ hostvars[groups['ai'][0]].ansible_host }}:11434"
+    api_key: ""
+
+sandbox_llm: "{{ sandbox_llm_providers[sandbox_llm_provider] }}"

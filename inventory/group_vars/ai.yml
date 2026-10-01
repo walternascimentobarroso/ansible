@@ -1,0 +1,23 @@
+---
+ai_openwebui_api_key: "{{ lookup('env', 'OPENWEBUI_API_KEY') }}"
+
+# model_ids is an allowlist: Open WebUI lists only these instead of everything the provider offers
+ai_llm_connections:
+  - url: https://api.groq.com/openai/v1
+    api_key: "{{ lookup('env', 'GROQ_API_KEY') }}"
+    config:
+      enable: true
+      connection_type: external
+      model_ids:
+        - openai/gpt-oss-120b
+        - qwen/qwen3.8-27b
+        - openai/gpt-oss-20b
+  - url: https://generativelanguage.googleapis.com/v1beta/openai
+    api_key: "{{ lookup('env', 'GEMINI_API_KEY') }}"
+    config:
+      enable: true
+      connection_type: external
+      model_ids:
+        - gemini-3.8-flash
+        - gemini-3.5-flash-lite
+        - gemma-4-31b-it

@@ -23,6 +23,7 @@ services:
 
     environment:
       OLLAMA_BASE_URL: http://ollama:11434
+      ENABLE_API_KEYS: "true"
 
     volumes:
       - {{ lxc.data_mount }}/open-webui:/app/backend/data

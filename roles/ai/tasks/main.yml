@@ -20,3 +20,23 @@
 - name: Start AI stack
   community.docker.docker_compose_v2:
     project_src: /opt/ai
+
+- name: Configure Open WebUI LLM connections
+  ansible.builtin.uri:
+    url: http://localhost:8080/openai/config/update
+    method: POST
+    headers:
+      Authorization: "Bearer {{ ai_openwebui_api_key }}"
+    body_format: json
+    body:
+      ENABLE_OPENAI_API: true
+      OPENAI_API_BASE_URLS: "{{ ai_llm_connections | map(attribute='url') }}"
+      OPENAI_API_KEYS: "{{ ai_llm_connections | map(attribute='api_key') }}"
+      OPENAI_API_CONFIGS: "{{ dict(range(ai_llm_connections | length) | map('string') | zip(ai_llm_connections | map(attribute='config'))) }}"
+  register: ai_llm_connections_update
+  until: ai_llm_connections_update.status == 200
+  retries: 12
+  delay: 5
+  no_log: true
+  # the API key can only be created in the UI after the first deploy
+  when: ai_openwebui_api_key | length > 0

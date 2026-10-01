@@ -28,6 +28,7 @@
       ansible.builtin.known_hosts:
         path: /root/.ansible_known_hosts
         name: "{{ lxc.ip }}"
-        key: "{{ lxc_host_key.stdout }}"
+        # ssh-keyscan prints a banner comment first, which hash_host would hash instead of the host
+        key: "{{ lxc_host_key.stdout_lines | last }}"
         hash_host: true
       delegate_to: localhost

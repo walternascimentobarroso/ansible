@@ -2,6 +2,7 @@
 sandbox_apps:
   - name: resume-matcher
     uid: 1000
+  - name: excalidraw
 
 sandbox_llm_provider: groq
 

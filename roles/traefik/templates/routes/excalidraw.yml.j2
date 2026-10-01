@@ -1,0 +1,14 @@
+http:
+  routers:
+    excalidraw:
+      rule: "Host(`excalidraw.{{ homelab_domain }}`)"
+      entryPoints:
+        - websecure
+      service: excalidraw
+      tls: {}
+
+  services:
+    excalidraw:
+      loadBalancer:
+        servers:
+          - url: "http://{{ hostvars[groups['sandbox'][0]].ansible_host }}:80"

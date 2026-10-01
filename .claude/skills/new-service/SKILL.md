@@ -1,11 +1,11 @@
 ---
 name: new-service
-description: Entrevista socrática para criar um novo serviço no homelab — uma pergunta de cada vez até ter tudo o que é preciso (imagem, VMID, IP, porta, recursos, volumes, segredos, rota Traefik), depois faz scaffold com `make new-service` e delega a um agente o preenchimento dos ficheiros. Usar quando o utilizador correr /new-service ou pedir para adicionar um serviço ao homelab.
+description: Entrevista socrática para criar um novo serviço no homelab — uma pergunta de cada vez até ter tudo o que é preciso (imagem, VMID, IP, porta, recursos, volumes, segredos, rota Traefik), depois apresenta um plano de implementação e, só após autorização explícita, faz scaffold com `make new-service` e delega a um agente o preenchimento dos ficheiros. Usar quando o utilizador correr /new-service ou pedir para adicionar um serviço ao homelab.
 ---
 
 # Novo serviço (entrevista socrática)
 
-Não escrevas nenhum ficheiro até a entrevista terminar e o utilizador confirmar o resumo.
+Começa por entrar em plan mode (`EnterPlanMode`) e fica nele até o utilizador aprovar o plano (passo 3): só podes ler — não escrevas ficheiros, não corras `make new-service` nem lances agentes.
 
 ## 1. Recolher contexto (antes de perguntar)
 
@@ -34,20 +34,33 @@ Uma pergunta de cada vez. Em cada uma: propõe um valor por defeito sensato, exp
 
 Pára quando tiveres resposta para tudo o que é relevante — não faças perguntas por fazer.
 
-## 3. Confirmar
+## 3. Plano
 
-Mostra um resumo compacto (tabela) com todas as decisões e a lista de ficheiros que serão criados/alterados. Espera "sim" explícito. Se houver duas abordagens possíveis (ex.: BD no mesmo compose vs LXC próprio), apresenta os trade-offs e deixa o utilizador decidir.
+Se houver duas abordagens possíveis (ex.: BD no mesmo compose vs LXC próprio), apresenta primeiro os trade-offs e deixa o utilizador decidir — o plano só leva decisões fechadas.
 
-## 4. Gerar
+Depois submete o plano de implementação com `ExitPlanMode`:
+
+- **Decisões** — tabela compacta com todas as respostas da entrevista.
+- **Comandos** — o `make new-service ...` exato, com os valores finais.
+- **Ficheiros** — um por linha, marcado como criado pelo scaffold, editado ou inalterado, com o que muda em cada um (imagem e tag, volumes, variáveis, dependências no compose, specs do LXC, rota Traefik).
+- **Segredos** — nomes das variáveis que entram em `.env` e `.env.example` (nunca os valores).
+- **Verificação** — `make syntax-check` e `make lint`.
+- **Fora do plano** — o que fica por fazer à mão (deploy, `make traefik-reload`, commit).
+
+Só avanças se o utilizador aprovar o plano. Se o rejeitar ou pedir alterações, continuas em plan mode: atualiza o plano e submete-o de novo — uma aprovação vale apenas para o plano que foi mostrado.
+
+## 4. Implementar
+
+Executa exatamente o plano autorizado. Se aparecer algo que obrigue a sair dele (scaffold falha, ficheiro inesperado, decisão em falta), pára e pergunta em vez de improvisar.
 
 1. Corre `make new-service NAME=<nome> VMID=<vmid> IP=<ip> PORT=<porta>` — nunca copies ficheiros de outro serviço à mão.
-2. Lança um agente `general-purpose` com um brief autocontido: o resumo confirmado, os caminhos gerados pelo scaffold, e estas regras:
+2. Lança um agente `general-purpose` com um brief autocontido: o plano autorizado, os caminhos gerados pelo scaffold, e estas regras:
    - Editar apenas os ficheiros do novo serviço (+ `.env.example`, `inventory/group_vars/<nome>.yml` e `.env` se houver segredos).
    - Preencher `roles/<nome>/templates/compose.yml.j2` (imagem, volumes, env, dependências) e ajustar `inventory/host_vars/<nome>-server.yml`.
    - Ajustar a rota Traefik só se o hostname/opções diferirem do default.
    - Seguir YAGNI/KISS/DRY e o `CLAUDE.md` do projeto; indentação 2 espaços.
    - No fim correr `make syntax-check PLAYBOOK=playbooks/<nome>/deploy.yml` e `make lint`, e reportar o resultado.
-3. Revê o diff do agente e mostra ao utilizador um resumo curto.
+3. Revê o diff do agente contra o plano e mostra ao utilizador um resumo curto, assinalando qualquer desvio.
 
 ## 5. Próximos passos
 

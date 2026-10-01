@@ -1,0 +1,10 @@
+services:
+  excalidraw:
+    image: excalidraw/excalidraw:latest
+    container_name: excalidraw
+    restart: unless-stopped
+    mem_limit: 256m
+    cpus: 0.5
+
+    ports:
+      - "80:80"

@@ -1,0 +1,14 @@
+http:
+  routers:
+    stirlingpdf:
+      rule: "Host(`pdf.{{ homelab_domain }}`)"
+      entryPoints:
+        - websecure
+      service: stirlingpdf
+      tls: {}
+
+  services:
+    stirlingpdf:
+      loadBalancer:
+        servers:
+          - url: "http://{{ hostvars[groups['sandbox'][0]].ansible_host }}:8080"

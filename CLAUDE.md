@@ -12,6 +12,8 @@ Each service (`pihole`, `traefik`, `nextcloud`, `ai`) is one inventory group wit
 
 Creating and bootstrapping an LXC is generic: `playbooks/lxc/create.yml` and `playbooks/lxc/bootstrap.yml` run on `proxmox` and read `hostvars[groups[service][0]].lxc`, where `service` is passed via `import_playbook` vars or `-e service=<name>`. Each `playbooks/<service>/` has only `deploy.yml` (lxc/create → lxc/bootstrap → configure-app) and `configure-app.yml`. `site.yml` imports every `deploy.yml`. Service logic lives in `roles/<service>/`, and Docker stacks are started with `community.docker.docker_compose_v2`.
 
+The `sandbox` LXC is the exception: it hosts several small apps in one container. Adding an app there takes three steps and no new LXC, playbook or role: an entry in `sandbox_apps` (`inventory/group_vars/sandbox.yml`), a compose file in `roles/sandbox/templates/apps/<app>.yml.j2` (data persists under `/opt/apps/<app>/data`), and a Traefik route pointing at `groups['sandbox'][0]`.
+
 Traefik routes are one file per service in `roles/traefik/templates/routes/`; every file there is deployed automatically (fileglob). Backend IPs come from `hostvars[groups['<service>'][0]].ansible_host`.
 
 Variables: `group_vars/all.yml` holds SSH settings plus `homelab_domain` and `traefik_ip`; `proxmox.yml` holds hypervisor/API config; `<service>.yml` holds app config. `.env` holds only secrets and app settings, read via `lookup('env', ...)` inside `group_vars`, never hardcoded or re-looked-up inside playbooks. Non-secret specs are versioned in `host_vars`, not in `.env`.

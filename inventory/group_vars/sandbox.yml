@@ -3,6 +3,7 @@ sandbox_apps:
   - name: resume-matcher
     uid: 1000
   - name: excalidraw
+  - name: stirlingpdf
 
 sandbox_llm_provider: groq
 

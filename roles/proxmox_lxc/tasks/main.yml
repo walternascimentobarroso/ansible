@@ -28,6 +28,7 @@
         name=eth0,bridge={{ proxmox_bridge }},ip={{ lxc.ip }}/{{ lxc.cidr | default(proxmox_lxc_cidr) }},gw={{ lxc.gateway | default(proxmox_lxc_gateway) }}
       unprivileged: 1
       start: 1
+      onboot: 1
 
 - name: Add features to LXC creation parameters
   ansible.builtin.set_fact:
@@ -64,6 +65,11 @@
     cmd: "pct config {{ lxc.vmid }}"
   register: proxmox_lxc_config
   changed_when: false
+
+- name: Start LXC {{ lxc.vmid }} on boot
+  ansible.builtin.command:
+    cmd: "pct set {{ lxc.vmid }} -onboot 1"
+  when: "'onboot: 1' not in proxmox_lxc_config.stdout"
 
 - name: Add LXC {{ lxc.vmid }} data volume
   ansible.builtin.command:

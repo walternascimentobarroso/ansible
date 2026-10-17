@@ -49,6 +49,12 @@ The Makefile auto-detects whether `docker-compose` (standalone) or `docker compo
 
 Always follow **YAGNI, KISS and DRY**. Before adding code, check whether an existing generic piece (`playbooks/lxc/`, `routes/`, `new-service.sh`, `host_vars`) already covers it; never copy a playbook, template or task per service when a loop, a dict or a generic playbook solves it. Don't add abstractions, variables or options with no current use, and delete dead code instead of leaving it behind.
 
+## Second brain
+
+Reusable knowledge shared across projects lives in `~/SecondBrain`, not in this repo. Don't read it by default: when a task touches infrastructure topics (TLS, DNS, Docker, Proxmox/LXC, networking), check the `devops` section of `~/SecondBrain/knowledge/README.md` and open only the relevant notes.
+
+What is specific to this homelab (inventory, playbooks, conventions) stays documented here. When solving a problem produces a lesson that applies beyond this repo, propose a note for `~/SecondBrain/knowledge/devops/` following `~/SecondBrain/AGENTS.md`, and keep only the project-specific rule in this file.
+
 ## Conventions
 
 - Indentation is 2 spaces (4 in shell scripts, tabs in the Makefile), LF line endings, UTF-8 (see `.editorconfig`).

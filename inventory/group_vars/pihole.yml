@@ -9,3 +9,11 @@ pihole_dhcp_end: "{{ lookup('env', 'PIHOLE_DHCP_END') }}"
 pihole_dhcp_router: "{{ lookup('env', 'PIHOLE_DHCP_ROUTER') }}"
 pihole_dhcp_netmask: "{{ lookup('env', 'PIHOLE_DHCP_NETMASK') }}"
 pihole_dhcp_lease_time: "{{ lookup('env', 'PIHOLE_DHCP_LEASE_TIME') }}"
+
+pihole_adlists:
+  - url: https://cdn.jsdelivr.net/gh/hagezi/dns-blocklists@latest/adblock/pro.txt
+    comment: HaGeZi Multi Pro - ads, trackers, telemetry
+  - url: https://cdn.jsdelivr.net/gh/hagezi/dns-blocklists@latest/adblock/tif.medium.txt
+    comment: HaGeZi Threat Intelligence Feeds Medium - malware, phishing
+  - url: https://cdn.jsdelivr.net/gh/hagezi/dns-blocklists@latest/adblock/native.samsung.txt
+    comment: HaGeZi Native Tracker Samsung - Smart TV telemetry

@@ -138,6 +138,8 @@ make deploy NAME=pihole
 
 Like every service, this runs `playbooks/lxc/create.yml`, `playbooks/lxc/bootstrap.yml` and `playbooks/pihole/configure-app.yml`: it creates the LXC, authorizes the automation's key, installs Pi-hole natively (no Docker), applies DNS/DHCP settings from `.env`, and deploys the wildcard DNS rule in `roles/pihole/templates/homelab.conf.j2`.
 
+Blocklists are declared in `pihole_adlists` (`inventory/group_vars/pihole.yml`) and are the only ones kept: any list added in the web UI is removed on the next run. The selection is deliberately small — HaGeZi Multi Pro (ads, trackers, telemetry), HaGeZi TIF Medium (malware, phishing) and HaGeZi Native Tracker for Samsung TVs — because larger or overlapping lists mostly add false positives. Gravity is rebuilt only when the list set changes; to apply a change without redeploying, run `make playbook PLAYBOOK=playbooks/pihole/configure-app.yml`.
+
 Point your router's DNS (or your devices) at the Pi-hole IP (`lxc.ip` in `inventory/host_vars/pihole-server.yml`). If `PIHOLE_DHCP_ENABLED=true`, disable the router's DHCP server to avoid conflicts.
 
 ## 7. Create and configure Traefik

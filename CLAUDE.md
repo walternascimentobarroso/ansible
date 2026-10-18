@@ -41,7 +41,12 @@ make lint                                  # ansible-lint
 make certs                                 # generate Root CA (once) + renew Traefik certificate
 make traefik-reload                        # certs + redeploy Traefik
 make new-service NAME=foo VMID=105 IP=192.168.1.6 PORT=3000   # scaffold a new service
+make router-dhcp-off                       # disable the NOS router's DHCP (after a router reset)
 ```
+
+## Devices without an API
+
+Devices Ansible can't manage (e.g. the NOS router, a Sagemcom with an RDK-B PHP web UI) are automated with a host-side `curl` script in `scripts/` plus a `make` target, as `scripts/router-disable-dhcp.sh` does. Before writing one, inspect the web UI's requests (login, CSRF token, save endpoint) with Playwright, then replay them with `curl`. Keep these scripts idempotent (read the current state first, change it only if needed, check it afterwards). Credentials go in `.env` and network values come from existing variables. On the NOS router: only one HTTP session is allowed (log out on exit, and close any open browser session before running), the password is sent base64-encoded to `check.php`, and the `csrfp_token` cookie (set on the first GET after login) must be sent back as a POST field.
 
 The Makefile auto-detects whether `docker-compose` (standalone) or `docker compose` (plugin) is available and uses whichever is present.
 

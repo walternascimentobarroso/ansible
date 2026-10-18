@@ -45,6 +45,10 @@ PIHOLE_DHCP_START=192.168.1.20
 PIHOLE_DHCP_END=192.168.1.254
 PIHOLE_DHCP_ROUTER=192.168.1.1
 PIHOLE_DHCP_NETMASK=255.255.255.0
+
+# NOS router (factory credentials after a reset)
+ROUTER_USER=admin
+ROUTER_PASSWORD=admin
 PIHOLE_DHCP_LEASE_TIME=24h
 ```
 
@@ -140,7 +144,15 @@ Like every service, this runs `playbooks/lxc/create.yml`, `playbooks/lxc/bootstr
 
 Blocklists are declared in `pihole_adlists` (`inventory/group_vars/pihole.yml`) and are the only ones kept: any list added in the web UI is removed on the next run. The selection is deliberately small — HaGeZi Multi Pro (ads, trackers, telemetry), HaGeZi TIF Medium (malware, phishing) and HaGeZi Native Tracker for Samsung TVs — because larger or overlapping lists mostly add false positives. Gravity is rebuilt only when the list set changes; to apply a change without redeploying, run `make playbook PLAYBOOK=playbooks/pihole/configure-app.yml`.
 
-Point your router's DNS (or your devices) at the Pi-hole IP (`lxc.ip` in `inventory/host_vars/pihole-server.yml`). If `PIHOLE_DHCP_ENABLED=true`, disable the router's DHCP server to avoid conflicts.
+With `PIHOLE_DHCP_ENABLED=true`, Pi-hole must be the only DHCP server, so the NOS router's DHCP has to be off. This is automated, and it is the step to repeat whenever NOS resets the router:
+
+```bash
+make router-dhcp-off
+```
+
+`scripts/router-disable-dhcp.sh` runs on the host (plain `curl`, not the Ansible container), logs in to the router's web UI, disables DHCP only if it is still on, and checks the result. It reads the network from `PIHOLE_DHCP_*` and the login from `ROUTER_USER`/`ROUTER_PASSWORD` (defaults `admin`/`admin`, the factory credentials). A NOS firmware update can change the web UI; the script then fails instead of silently doing nothing.
+
+To check on a device, reconnect to the Wi-Fi and look at the network details: DNS must be the Pi-hole IP (`lxc.ip` in `inventory/host_vars/pihole-server.yml`) and the device must show up in Pi-hole's DHCP leases.
 
 ## 7. Create and configure Traefik
 
@@ -255,6 +267,7 @@ make deploy NAME=ai    # create + bootstrap + configure one service
 make site             # deploy every service (site.yml)
 make certs            # generate the Root CA (once) and renew the Traefik certificate
 make traefik-reload   # certs + redeploy Traefik
+make router-dhcp-off  # disable the NOS router's DHCP (after a router reset)
 make lint             # ansible-lint
 make bash        # open a shell inside the Ansible container
 make logs        # follow the container logs
@@ -292,7 +305,8 @@ ansible/
 │   └── <service>/                 # the service's app
 ├── scripts/
 │   ├── generate-homelab-certificates.sh  # Root CA + Traefik certificate (one SAN per host)
-│   └── new-service.sh                    # scaffold used by make new-service
+│   ├── new-service.sh                    # scaffold used by make new-service
+│   └── router-disable-dhcp.sh            # turns off the NOS router's DHCP via its web UI
 └── docs/
     └── certificates.md            # certificate generation and client install
 ```

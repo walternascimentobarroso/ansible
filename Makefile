@@ -103,6 +103,10 @@ certs: ## Generate the Root CA (once) and renew the Traefik certificate
 traefik-reload: certs ## Regenerate the certificate and redeploy Traefik routes
 	$(DOCKER_COMPOSE) exec $(SERVICE) ansible-playbook playbooks/traefik/configure-app.yml
 
+.PHONY: router-dhcp-off
+router-dhcp-off: ## Disable DHCP on the NOS router so Pi-hole serves DHCP (run after a router reset)
+	./scripts/router-disable-dhcp.sh
+
 .PHONY: new-service
 new-service: ## Scaffold a new service, e.g. make new-service NAME=foo VMID=105 IP=192.168.1.6 PORT=8080
 	./scripts/new-service.sh $(NAME) $(VMID) $(IP) $(PORT)

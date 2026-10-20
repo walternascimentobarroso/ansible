@@ -95,13 +95,7 @@
     owner: root
     group: root
     mode: "0644"
-  register: homelab_dns_config
-
-- name: Restart Pi-hole FTL after DNS configuration change
-  ansible.builtin.service:
-    name: pihole-FTL
-    state: restarted
-  when: homelab_dns_config.changed
+  notify: Restart Pi-hole FTL
 
 - name: Sync Pi-hole adlists
   ansible.builtin.command:

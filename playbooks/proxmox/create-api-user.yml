@@ -14,3 +14,4 @@
       ansible.builtin.command:
         cmd: "pveum user add {{ proxmox_api_user }}"
       when: proxmox_api_user not in proxmox_users.stdout
+      changed_when: true

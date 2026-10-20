@@ -37,6 +37,7 @@
       when: >
         proxmox_api_user not in proxmox_acls.stdout
         or 'PVEAdmin' not in proxmox_acls.stdout
+      changed_when: true
 
     - name: Get updated ACLs
       ansible.builtin.command:

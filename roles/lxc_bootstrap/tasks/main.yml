@@ -1,23 +1,23 @@
 ---
-- name: Check LXC {{ lxc.vmid }} status
+- name: Check status of LXC {{ lxc.vmid }}
   ansible.builtin.command:
     cmd: "pct status {{ lxc.vmid }}"
-  register: lxc_status
+  register: lxc_bootstrap_status
   changed_when: false
 
 - name: Start LXC {{ lxc.vmid }}
   ansible.builtin.command:
     cmd: "pct start {{ lxc.vmid }}"
-  when: "'status: running' not in lxc_status.stdout"
+  when: "'status: running' not in lxc_bootstrap_status.stdout"
   changed_when: true
 
-- name: Wait for LXC {{ lxc.vmid }} to be ready
+- name: Wait until ready LXC {{ lxc.vmid }}
   ansible.builtin.command:
     cmd: "pct exec {{ lxc.vmid }} -- true"
-  register: lxc_ready
+  register: lxc_bootstrap_ready
   retries: 10
   delay: 2
-  until: lxc_ready.rc == 0
+  until: lxc_bootstrap_ready.rc == 0
   changed_when: false
 
 - name: Install OpenSSH server
@@ -39,6 +39,7 @@
     cmd: >
       pct exec {{ lxc.vmid }} --
       bash -c "echo '{{ lookup('file', lookup('env', 'HOME') + '/.ssh/proxmox.pub') }}' > /root/.ssh/authorized_keys"
+  changed_when: false
 
 - name: Set SSH directory permissions
   ansible.builtin.command:

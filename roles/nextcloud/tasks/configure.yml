@@ -12,6 +12,7 @@
       php occ config:system:set trusted_domains 2
       --value=nextcloud.{{ homelab_domain }}
   when: "'nextcloud.' ~ homelab_domain not in nextcloud_trusted_domains_current.stdout_lines"
+  changed_when: true
 
 - name: Read Nextcloud overwrite protocol
   ansible.builtin.command:
@@ -27,6 +28,7 @@
       php occ config:system:set overwriteprotocol
       --value=https
   when: nextcloud_overwriteprotocol.stdout != "https"
+  changed_when: true
 
 - name: Read Nextcloud trusted proxies
   ansible.builtin.command:
@@ -42,6 +44,7 @@
       php occ config:system:set trusted_proxies 0
       --value={{ traefik_ip }}
   when: traefik_ip not in nextcloud_trusted_proxies_current.stdout_lines
+  changed_when: true
 
 - name: Read Nextcloud skeleton directory
   ansible.builtin.command:
@@ -57,3 +60,4 @@
       php occ config:system:set skeletondirectory
       --value=/skeleton
   when: nextcloud_skeleton_directory.stdout != "/skeleton"
+  changed_when: true

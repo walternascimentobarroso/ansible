@@ -17,3 +17,4 @@
           {{ proxmox_template_storage }}
           {{ proxmox_template }}
       when: proxmox_template not in downloaded_templates.stdout
+      changed_when: true

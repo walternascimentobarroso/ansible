@@ -1,0 +1,4 @@
+---
+# Application configuration
+vaultwarden_admin_token: "{{ lookup('env', 'VAULTWARDEN_ADMIN_TOKEN') }}"
+vaultwarden_signups_allowed: "{{ lookup('env', 'VAULTWARDEN_SIGNUPS_ALLOWED') }}"

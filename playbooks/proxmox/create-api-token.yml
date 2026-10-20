@@ -14,6 +14,7 @@
       ansible.builtin.command:
         cmd: "pveum user token remove {{ proxmox_api_user }} {{ proxmox_api_token_id }}"
       when: proxmox_api_token_id in proxmox_tokens.stdout
+      changed_when: true
 
     - name: Create new API token
       ansible.builtin.command:
@@ -23,6 +24,7 @@
           {{ proxmox_api_token_id }}
           --privsep 0
       register: token_creation
+      changed_when: true
       no_log: true
 
     - name: Extract token secret

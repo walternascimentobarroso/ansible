@@ -13,3 +13,6 @@
 
 - name: Deploy sandbox
   ansible.builtin.import_playbook: playbooks/sandbox/deploy.yml
+
+- name: Deploy vaultwarden
+  ansible.builtin.import_playbook: playbooks/vaultwarden/deploy.yml

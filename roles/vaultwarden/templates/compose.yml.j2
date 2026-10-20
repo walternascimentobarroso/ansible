@@ -1,0 +1,17 @@
+services:
+  vaultwarden:
+    image: vaultwarden/server:1.34.3
+    container_name: vaultwarden
+    restart: unless-stopped
+
+    ports:
+      - "80:80"
+
+    environment:
+      DOMAIN: "https://vault.{{ homelab_domain }}"
+      SIGNUPS_ALLOWED: "{{ vaultwarden_signups_allowed }}"
+      # Compose interpolates "$", and the argon2 hash is full of them
+      ADMIN_TOKEN: "{{ vaultwarden_admin_token | replace('$', '$$') }}"
+
+    volumes:
+      - /opt/vaultwarden/data:/data

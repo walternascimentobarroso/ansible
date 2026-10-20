@@ -1,0 +1,14 @@
+http:
+  routers:
+    vaultwarden:
+      rule: "Host(`vault.{{ homelab_domain }}`)"
+      entryPoints:
+        - websecure
+      service: vaultwarden
+      tls: {}
+
+  services:
+    vaultwarden:
+      loadBalancer:
+        servers:
+          - url: "http://{{ hostvars[groups['vaultwarden'][0]].ansible_host }}:80"

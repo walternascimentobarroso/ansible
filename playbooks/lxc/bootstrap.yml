@@ -26,7 +26,7 @@
 
     - name: Trust SSH host key of {{ lxc.ip }}
       ansible.builtin.known_hosts:
-        path: /root/.ansible_known_hosts
+        path: /root/.ansible_ssh/known_hosts
         name: "{{ lxc.ip }}"
         # ssh-keyscan prints a banner comment first, which hash_host would hash instead of the host
         key: "{{ lxc_host_key.stdout_lines | last }}"

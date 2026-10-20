@@ -1,4 +1,9 @@
 ---
+- name: Restart Pi-hole FTL
+  ansible.builtin.service:
+    name: pihole-FTL
+    state: restarted
+
 - name: Update Pi-hole gravity
   ansible.builtin.command:
     cmd: pihole -g

@@ -1,5 +1,5 @@
 ---
-- name: Check if LXC {{ lxc.vmid }} exists
+- name: Check existence of LXC {{ lxc.vmid }}
   ansible.builtin.uri:
     url: "{{ proxmox_api_url }}/nodes/{{ proxmox_node }}/lxc/{{ lxc.vmid }}/config"
     method: GET
@@ -15,7 +15,7 @@
 
 - name: Build LXC creation parameters
   ansible.builtin.set_fact:
-    lxc_create_body:
+    proxmox_lxc_create_body:
       vmid: "{{ lxc.vmid }}"
       hostname: "{{ lxc.hostname }}"
       ostemplate: "{{ proxmox_template_storage }}:vztmpl/{{ proxmox_template }}"
@@ -32,14 +32,14 @@
 
 - name: Add features to LXC creation parameters
   ansible.builtin.set_fact:
-    lxc_create_body: "{{ lxc_create_body | combine({'features': lxc.features}) }}"
+    proxmox_lxc_create_body: "{{ proxmox_lxc_create_body | combine({'features': lxc.features}) }}"
   when: lxc.features is defined
 
 - name: Add data volume to LXC creation parameters
   ansible.builtin.set_fact:
-    lxc_create_body: >-
+    proxmox_lxc_create_body: >-
       {{
-        lxc_create_body | combine({
+        proxmox_lxc_create_body | combine({
           'mp0': proxmox_lxc_storage ~ ':' ~ lxc.data_size ~ ',mp=' ~ lxc.data_mount
         })
       }}
@@ -53,25 +53,26 @@
     headers:
       Authorization: "{{ proxmox_api_auth }}"
     body_format: form-urlencoded
-    body: "{{ lxc_create_body }}"
+    body: "{{ proxmox_lxc_create_body }}"
     status_code: 200
     return_content: true
     validate_certs: false
   when: proxmox_lxc_lookup.status != 200
   no_log: true
 
-- name: Get LXC {{ lxc.vmid }} configuration
+- name: Get configuration of LXC {{ lxc.vmid }}
   ansible.builtin.command:
     cmd: "pct config {{ lxc.vmid }}"
   register: proxmox_lxc_config
   changed_when: false
 
-- name: Start LXC {{ lxc.vmid }} on boot
+- name: Enable start on boot for LXC {{ lxc.vmid }}
   ansible.builtin.command:
     cmd: "pct set {{ lxc.vmid }} -onboot 1"
   when: "'onboot: 1' not in proxmox_lxc_config.stdout"
+  changed_when: true
 
-- name: Add LXC {{ lxc.vmid }} data volume
+- name: Add data volume to LXC {{ lxc.vmid }}
   ansible.builtin.command:
     cmd: >
       pct set {{ lxc.vmid }}
@@ -79,3 +80,4 @@
   when:
     - lxc.data_size is defined
     - "'mp0:' not in proxmox_lxc_config.stdout"
+  changed_when: true

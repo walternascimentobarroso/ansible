@@ -1,0 +1,8 @@
+---
+- name: Configure vaultwarden
+  hosts: vaultwarden
+  become: true
+
+  roles:
+    - docker
+    - vaultwarden

@@ -1,0 +1,14 @@
+http:
+  routers:
+    homeassistant:
+      rule: "Host(`ha.{{ homelab_domain }}`)"
+      entryPoints:
+        - websecure
+      service: homeassistant
+      tls: {}
+
+  services:
+    homeassistant:
+      loadBalancer:
+        servers:
+          - url: "http://{{ hostvars[groups['homeassistant'][0]].ansible_host }}:8123"

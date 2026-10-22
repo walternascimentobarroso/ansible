@@ -1,0 +1,11 @@
+services:
+  homeassistant:
+    image: ghcr.io/home-assistant/home-assistant:2026.10
+    container_name: homeassistant
+    restart: unless-stopped
+
+    # mDNS/SSDP discovery needs the host network
+    network_mode: host
+
+    volumes:
+      - /opt/homeassistant/config:/config

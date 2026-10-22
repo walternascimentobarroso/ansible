@@ -1,0 +1,8 @@
+---
+- name: Configure homeassistant
+  hosts: homeassistant
+  become: true
+
+  roles:
+    - docker
+    - homeassistant

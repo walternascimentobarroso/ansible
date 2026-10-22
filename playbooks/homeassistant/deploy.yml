@@ -1,0 +1,13 @@
+---
+- name: Create LXC
+  ansible.builtin.import_playbook: ../lxc/create.yml
+  vars:
+    service: homeassistant
+
+- name: Bootstrap LXC
+  ansible.builtin.import_playbook: ../lxc/bootstrap.yml
+  vars:
+    service: homeassistant
+
+- name: Configure app
+  ansible.builtin.import_playbook: configure-app.yml

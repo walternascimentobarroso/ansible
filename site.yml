@@ -16,3 +16,6 @@
 
 - name: Deploy vaultwarden
   ansible.builtin.import_playbook: playbooks/vaultwarden/deploy.yml
+
+- name: Deploy homeassistant
+  ansible.builtin.import_playbook: playbooks/homeassistant/deploy.yml

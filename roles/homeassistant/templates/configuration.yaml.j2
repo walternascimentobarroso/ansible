@@ -1,0 +1,14 @@
+default_config:
+
+# Hostnames don't resolve inside the LXC (router DNS), so curl goes straight to Traefik
+command_line:
+{% for name, host in {'Vaultwarden': 'vault', 'Traefik': 'traefik', 'Excalidraw': 'excalidraw', 'Stirling PDF': 'pdf', 'Resume Matcher': 'resume', 'Open WebUI': 'ai'}.items() %}
+  - binary_sensor:
+      name: "{{ name }}"
+      unique_id: "http_{{ host }}"
+      device_class: connectivity
+      scan_interval: 60
+      command: "curl -sk -o /dev/null -w '%{http_code}' --max-time 10 --resolve {{ host }}.{{ homelab_domain }}:443:{{ traefik_ip }} https://{{ host }}.{{ homelab_domain }}"
+      # Any answer below 500 (401 from an auth wall included) means the app is up
+      value_template: "{% raw %}{{ 'ON' if 200 <= value | int(0) < 500 else 'OFF' }}{% endraw %}"
+{% endfor %}

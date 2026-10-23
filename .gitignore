@@ -4,3 +4,4 @@ certs/
 .ssh/
 prompts/
 .playwright-mcp
+.claude/plan/

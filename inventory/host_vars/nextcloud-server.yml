@@ -5,7 +5,7 @@ lxc:
   vmid: 101
   hostname: nextcloud
   cores: 2
-  memory: 4096
+  memory: 6144
   swap: 512
   disk: 32
   data_size: 200

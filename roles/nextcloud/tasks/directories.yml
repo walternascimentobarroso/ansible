@@ -21,6 +21,15 @@
     state: directory
     mode: "0755"
 
+- name: Create OnlyOffice persistent directories
+  ansible.builtin.file:
+    path: "/opt/nextcloud/onlyoffice/{{ item }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - data
+    - logs
+
 - name: Configure Nextcloud data directory permissions
   ansible.builtin.file:
     path: /data

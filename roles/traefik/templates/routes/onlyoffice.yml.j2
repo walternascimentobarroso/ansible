@@ -1,0 +1,14 @@
+http:
+  routers:
+    onlyoffice:
+      rule: "Host(`office.{{ homelab_domain }}`)"
+      entryPoints:
+        - websecure
+      service: onlyoffice
+      tls: {}
+
+  services:
+    onlyoffice:
+      loadBalancer:
+        servers:
+          - url: "http://{{ hostvars[groups['nextcloud'][0]].ansible_host }}:8080"

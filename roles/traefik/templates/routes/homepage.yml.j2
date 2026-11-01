@@ -1,0 +1,14 @@
+http:
+  routers:
+    homepage:
+      rule: "Host(`dashboard.{{ homelab_domain }}`)"
+      entryPoints:
+        - websecure
+      service: homepage
+      tls: {}
+
+  services:
+    homepage:
+      loadBalancer:
+        servers:
+          - url: "http://{{ hostvars[groups['sandbox'][0]].ansible_host }}:3001"

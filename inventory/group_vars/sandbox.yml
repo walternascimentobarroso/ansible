@@ -4,6 +4,18 @@ sandbox_apps:
     uid: 1000
   - name: excalidraw
   - name: stirlingpdf
+  - name: homepage
+
+homepage_services:
+  - { group: Infra, name: Pi-hole, subdomain: pihole, icon: pi-hole.png, description: DNS e bloqueio de anúncios }
+  - { group: Infra, name: Home Assistant, subdomain: ha, icon: home-assistant.png, description: Automação da casa }
+  - { group: Cloud, name: Nextcloud, subdomain: nextcloud, icon: nextcloud.png, description: Ficheiros e calendário }
+  - { group: Cloud, name: OnlyOffice, subdomain: office, icon: onlyoffice.png, description: Editor de documentos }
+  - { group: Cloud, name: Vaultwarden, subdomain: vault, icon: vaultwarden.png, description: Gestor de passwords }
+  - { group: Apps, name: AI, subdomain: ai, icon: ollama.png, description: LLMs locais }
+  - { group: Apps, name: Resume Matcher, subdomain: resume, icon: mdi-file-account, description: CV vs vagas }
+  - { group: Apps, name: Stirling PDF, subdomain: pdf, icon: stirling-pdf.png, description: Ferramentas de PDF }
+  - { group: Apps, name: Excalidraw, subdomain: excalidraw, icon: excalidraw.png, description: Quadro branco }
 
 sandbox_llm_provider: groq
 

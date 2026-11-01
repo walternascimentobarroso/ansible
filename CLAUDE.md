@@ -14,6 +14,8 @@ Creating and bootstrapping an LXC is generic: `playbooks/lxc/create.yml` and `pl
 
 The `sandbox` LXC is the exception: it hosts several small apps in one container. Adding an app there takes three steps and no new LXC, playbook or role: an entry in `sandbox_apps` (`inventory/group_vars/sandbox.yml`), a compose file in `roles/sandbox/templates/apps/<app>.yml.j2` (data persists under `/opt/apps/<app>/data`), and a Traefik route pointing at `groups['sandbox'][0]`.
 
+Every service with a Traefik route also gets an entry in `homepage_services` (`inventory/group_vars/sandbox.yml`), which feeds the catalog at `dashboard.{{ homelab_domain }}`.
+
 Traefik routes are one file per service in `roles/traefik/templates/routes/`; every file there is deployed automatically (fileglob). Backend IPs come from `hostvars[groups['<service>'][0]].ansible_host`.
 
 Variables: `group_vars/all.yml` holds SSH settings plus `homelab_domain` and `traefik_ip`; `proxmox.yml` holds hypervisor/API config; `<service>.yml` holds app config. `.env` holds only secrets and app settings, read via `lookup('env', ...)` inside `group_vars`, never hardcoded or re-looked-up inside playbooks. Non-secret specs are versioned in `host_vars`, not in `.env`.

@@ -21,6 +21,15 @@
   loop_control:
     label: "{{ item.name }}"
 
+- name: Deploy Homepage service catalog
+  ansible.builtin.template:
+    src: homepage/services.yaml.j2
+    dest: /opt/apps/homepage/data/services.yaml
+    owner: root
+    group: root
+    mode: "0644"
+  when: "'homepage' in sandbox_apps | map(attribute='name')"
+
 - name: Start app stacks
   community.docker.docker_compose_v2:
     project_src: "/opt/apps/{{ item.name }}"

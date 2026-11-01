@@ -1,0 +1,9 @@
+{% for group, services in homepage_services | groupby('group') %}
+- {{ group }}:
+{% for service in services %}
+    - {{ service.name }}:
+        href: https://{{ service.subdomain }}.{{ homelab_domain }}
+        icon: {{ service.icon }}
+        description: {{ service.description }}
+{% endfor %}
+{% endfor %}

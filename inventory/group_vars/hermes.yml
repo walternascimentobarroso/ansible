@@ -1,0 +1,13 @@
+---
+# Application configuration
+hermes_dashboard_user: "{{ lookup('env', 'HERMES_DASHBOARD_USER') }}"
+hermes_dashboard_password: "{{ lookup('env', 'HERMES_DASHBOARD_PASSWORD') }}"
+hermes_groq_api_key: "{{ lookup('env', 'GROQ_API_KEY') }}"
+hermes_telegram_bot_token: "{{ lookup('env', 'TELEGRAM_BOT_TOKEN') }}"
+hermes_telegram_allowed_users: "{{ lookup('env', 'TELEGRAM_ALLOWED_USERS') }}"
+
+# Groq through Hermes' OpenAI-compatible custom provider
+hermes_model:
+  model.provider: custom
+  model.base_url: https://api.groq.com/openai/v1
+  model.default: qwen/qwen3.8-27b

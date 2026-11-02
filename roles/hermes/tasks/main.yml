@@ -1,0 +1,37 @@
+---
+- name: Create hermes directory
+  ansible.builtin.file:
+    path: /opt/hermes
+    state: directory
+    mode: "0755"
+
+- name: Deploy hermes Docker Compose
+  ansible.builtin.template:
+    src: compose.yml.j2
+    dest: /opt/hermes/compose.yml
+    owner: root
+    group: root
+    mode: "0600"
+
+- name: Start hermes stack
+  community.docker.docker_compose_v2:
+    project_src: /opt/hermes
+
+# Hermes seeds its own config.yaml on first start, so the model is set through its CLI
+- name: Read hermes model config
+  community.docker.docker_container_exec:
+    container: hermes
+    user: hermes
+    command: hermes config get {{ item.key }}
+  loop: "{{ hermes_model | dict2items }}"
+  register: hermes_model_current
+  changed_when: false
+
+- name: Set hermes model config
+  community.docker.docker_container_exec:
+    container: hermes
+    user: hermes
+    argv: [hermes, config, set, "{{ item.item.key }}", "{{ item.item.value }}"]
+  loop: "{{ hermes_model_current.results }}"
+  when: item.stdout | trim != item.item.value
+  notify: Restart hermes

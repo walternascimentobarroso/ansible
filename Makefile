@@ -100,8 +100,9 @@ certs: ## Generate the Root CA (once) and renew the Traefik certificate
 	HOMELAB_DOMAIN=$(HOMELAB_DOMAIN) ./scripts/generate-homelab-certificates.sh
 
 .PHONY: traefik-reload
-traefik-reload: certs ## Regenerate the certificate and redeploy Traefik routes
+traefik-reload: certs ## Regenerate the certificate, redeploy Traefik routes and the dashboard
 	$(DOCKER_COMPOSE) exec $(SERVICE) ansible-playbook playbooks/traefik/configure-app.yml
+	$(DOCKER_COMPOSE) exec $(SERVICE) ansible-playbook playbooks/sandbox/configure-app.yml
 
 .PHONY: router-dhcp-off
 router-dhcp-off: ## Disable DHCP on the NOS router so Pi-hole serves DHCP (run after a router reset)

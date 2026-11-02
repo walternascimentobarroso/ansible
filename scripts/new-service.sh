@@ -133,8 +133,17 @@ http:
           - url: "http://{{ hostvars[groups['${NAME}'][0]].ansible_host }}:${PORT}"
 EOF
 
+echo "==> Dashboard entry"
+
+# Insert after the last homepage_services item so the list stays in one block
+awk -v entry="  - { group: Apps, name: ${NAME}, subdomain: ${NAME}, icon: mdi-application, description: ${NAME} }" \
+    '{ lines[NR] = $0; if ($0 ~ /^  - \{ group:/) last = NR }
+     END { for (i = 1; i <= NR; i++) { print lines[i]; if (i == last) print entry } }' \
+    inventory/group_vars/sandbox.yml > inventory/group_vars/sandbox.yml.tmp
+mv inventory/group_vars/sandbox.yml.tmp inventory/group_vars/sandbox.yml
+
 echo
 echo "Service '${NAME}' created. Next steps:"
-echo "  1. Set the image in roles/${NAME}/templates/compose.yml.j2 and adjust the LXC specs in inventory/host_vars/${NAME}-server.yml"
+echo "  1. Set the image in roles/${NAME}/templates/compose.yml.j2, adjust the LXC specs in inventory/host_vars/${NAME}-server.yml and the dashboard entry in inventory/group_vars/sandbox.yml"
 echo "  2. make deploy NAME=${NAME}"
-echo "  3. make traefik-reload"
+echo "  3. make traefik-reload (certificate, routes and dashboard)"

@@ -19,3 +19,6 @@
 
 - name: Deploy homeassistant
   ansible.builtin.import_playbook: playbooks/homeassistant/deploy.yml
+
+- name: Deploy hermes
+  ansible.builtin.import_playbook: playbooks/hermes/deploy.yml

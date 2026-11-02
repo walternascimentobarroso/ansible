@@ -58,6 +58,7 @@ Executa exatamente o plano autorizado. Se aparecer algo que obrigue a sair dele 
    - Editar apenas os ficheiros do novo serviço (+ `.env.example`, `inventory/group_vars/<nome>.yml` e `.env` se houver segredos).
    - Preencher `roles/<nome>/templates/compose.yml.j2` (imagem, volumes, env, dependências) e ajustar `inventory/host_vars/<nome>-server.yml`.
    - Ajustar a rota Traefik só se o hostname/opções diferirem do default.
+   - Ajustar a entrada que o scaffold criou em `homepage_services` (`inventory/group_vars/sandbox.yml`): grupo, nome, descrição, subdomínio igual ao `Host(...)` da rota, e ícone `<app>.png` do dashboard-icons (`https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/<app>.png` devolve 200) antes de recorrer a `mdi-*`.
    - Seguir YAGNI/KISS/DRY e o `CLAUDE.md` do projeto; indentação 2 espaços.
    - No fim correr `make syntax-check PLAYBOOK=playbooks/<nome>/deploy.yml` e `make lint`, e reportar o resultado.
 3. Revê o diff do agente contra o plano e mostra ao utilizador um resumo curto, assinalando qualquer desvio.
@@ -66,4 +67,4 @@ Executa exatamente o plano autorizado. Se aparecer algo que obrigue a sair dele 
 
 Indica (não executes, não faças commit):
 - `make deploy NAME=<nome>`
-- `make traefik-reload` (novo `Host(...)` → novo SAN no certificado)
+- `make traefik-reload` (novo `Host(...)` → novo SAN no certificado, e redeploy do dashboard)

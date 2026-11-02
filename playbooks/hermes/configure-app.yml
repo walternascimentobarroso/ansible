@@ -1,0 +1,8 @@
+---
+- name: Configure hermes
+  hosts: hermes
+  become: true
+
+  roles:
+    - docker
+    - hermes

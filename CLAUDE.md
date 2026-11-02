@@ -14,7 +14,7 @@ Creating and bootstrapping an LXC is generic: `playbooks/lxc/create.yml` and `pl
 
 The `sandbox` LXC is the exception: it hosts several small apps in one container. Adding an app there takes three steps and no new LXC, playbook or role: an entry in `sandbox_apps` (`inventory/group_vars/sandbox.yml`), a compose file in `roles/sandbox/templates/apps/<app>.yml.j2` (data persists under `/opt/apps/<app>/data`), and a Traefik route pointing at `groups['sandbox'][0]`.
 
-Every service with a Traefik route also gets an entry in `homepage_services` (`inventory/group_vars/sandbox.yml`), which feeds the catalog at `dashboard.{{ homelab_domain }}`.
+Every service with a Traefik route also gets an entry in `homepage_services` (`inventory/group_vars/sandbox.yml`), which feeds the catalog at `dashboard.{{ homelab_domain }}`. `make new-service` adds that entry, and `make traefik-reload` redeploys the dashboard along with the routes.
 
 Traefik routes are one file per service in `roles/traefik/templates/routes/`; every file there is deployed automatically (fileglob). Backend IPs come from `hostvars[groups['<service>'][0]].ansible_host`.
 
@@ -41,7 +41,7 @@ make syntax-check PLAYBOOK=<path>          # syntax-check one playbook
 make syntax-check-all                      # syntax-check every playbook
 make lint                                  # ansible-lint
 make certs                                 # generate Root CA (once) + renew Traefik certificate
-make traefik-reload                        # certs + redeploy Traefik
+make traefik-reload                        # certs + redeploy Traefik + dashboard
 make new-service NAME=foo VMID=105 IP=192.168.1.6 PORT=3000   # scaffold a new service
 make router-dhcp-off                       # disable the NOS router's DHCP (after a router reset)
 ```

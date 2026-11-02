@@ -1,0 +1,14 @@
+http:
+  routers:
+    hermes:
+      rule: "Host(`hermes.{{ homelab_domain }}`)"
+      entryPoints:
+        - websecure
+      service: hermes
+      tls: {}
+
+  services:
+    hermes:
+      loadBalancer:
+        servers:
+          - url: "http://{{ hostvars[groups['hermes'][0]].ansible_host }}:9119"

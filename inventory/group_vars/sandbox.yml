@@ -13,6 +13,7 @@ homepage_services:
   - { group: Cloud, name: OnlyOffice, subdomain: office, icon: onlyoffice.png, description: Editor de documentos }
   - { group: Cloud, name: Vaultwarden, subdomain: vault, icon: vaultwarden.png, description: Gestor de passwords }
   - { group: Apps, name: AI, subdomain: ai, icon: ollama.png, description: LLMs locais }
+  - { group: Apps, name: Hermes, subdomain: hermes, icon: hermes.png, description: Agente de IA }
   - { group: Apps, name: Resume Matcher, subdomain: resume, icon: mdi-file-account, description: CV vs vagas }
   - { group: Apps, name: Stirling PDF, subdomain: pdf, icon: stirling-pdf.png, description: Ferramentas de PDF }
   - { group: Apps, name: Excalidraw, subdomain: excalidraw, icon: excalidraw.png, description: Quadro branco }
